@@ -6,7 +6,7 @@ Cucumber::Rake::Task.new do |t|
 end
 
 task :default do
-  %w(bundler:bundle spec cucumber).each do |task|
+  %w(spec cucumber).each do |task|
     Rake::Task[task].invoke
   end
 end
@@ -22,4 +22,3 @@ namespace :bundler do
     system "gem bundle"
   end
 end
-
