@@ -10,15 +10,15 @@ Feature: Fetching SSH Keys
     When I run the fetch_keys command for the server "preview"
     Then It should fetch the following keys
       """
-      ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO
+        ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO
       """
 
   Scenario: Fetching all keys from all servers
     Given the following hosts
       """
-      10.52.1.41      preview
-      10.52.1.42      edge
-      10.53.1.41      production
+        10.52.1.41      preview
+        10.52.1.42      edge
+        10.53.1.41      production
       """
     And the following keys are on the servers
       | server     | key                                                   |
@@ -31,11 +31,11 @@ Feature: Fetching SSH Keys
     When I run the fetch_keys command
     Then It should fetch the following keys
       """
-      ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           
-      ssh-rsa key4== abel.fernandez@nb-afernandez.local    
-      ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  
-      ssh-rsa key3== lee.hambley@xing.com                  
-      ssh-rsa key5== pascal.friederich@nb-pfriederich.local
+        ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           
+        ssh-rsa key4== abel.fernandez@nb-afernandez.local    
+        ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  
+        ssh-rsa key3== lee.hambley@xing.com                  
+        ssh-rsa key5== pascal.friederich@nb-pfriederich.local
       """
 
   @fakefs
