@@ -46,10 +46,12 @@ Feature: Fetching SSH Keys
       | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
       | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
       | ssh-rsa key3== lee.hambley@xing.com                  |
+      | ssh-rsa key5== lee.hambley@private                   |
     When I run the dump_keyfiles command
     Then It should generate the following files
-      | name                                      | key                                                  |
-      | adem_deliceoglu@pc_adeliceo.pub           | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
-      | abelfernandez@nb_afernandez_local.pub     | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
-      | christian_kvalheim@nb_ckvalheim_local.pub | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
-      | lee_hambley@xing_com.pub                  | ssh-rsa key3== lee.hambley@xing.com                  |
+      | name                          | key                                                  |
+      | adem_deliceoglu.pub           | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
+      | abelfernandez.pub             | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
+      | christian_kvalheim.pub        | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
+      | lee_hambley.pub               | ssh-rsa key3== lee.hambley@xing.com                  |
+      | lee_hambley_2.pub             | ssh-rsa key5== lee.hambley@private                   |

@@ -46,25 +46,36 @@ module SSHMuggle
     end
     
     context "dumping the keys to files" do
-      before do
-        server = server_with_keys([key_fixtures[:pascal], key_fixtures[:bob]])
+      before :all do
+        sorted_keys = [
+          key_fixtures[:pascal],
+          key_fixtures[:pascal_private],
+          key_fixtures[:pascal_laptop],
+          key_fixtures[:bob],
+          key_fixtures[:upcase]
+        ]
+
+        server = server_with_keys(sorted_keys)
         server.dump_keyfiles
       end
 
       it "should replace special characters with underscores in filename" do
-        it_should_generate_keyfile 'bob_schneider@nb_pfriederich_local.pub'
-        it_should_generate_keyfile 'pascal_friederich@nb_pfriederich_local.pub'
+        it_should_generate_keyfile 'bob_schneider.pub'
+        it_should_generate_keyfile 'pascal_friederich.pub'
       end
-      
+
       it "should write the ssh key in the appropriate keyfile" do
-        File.open('keys/bob_schneider@nb_pfriederich_local.pub').read.chomp.should == key_fixtures[:bob]
-        File.open('keys/pascal_friederich@nb_pfriederich_local.pub').read.chomp.should == key_fixtures[:pascal]
+        File.open('keys/bob_schneider.pub').read.chomp.should == key_fixtures[:bob]
+        File.open('keys/pascal_friederich.pub').read.chomp.should == key_fixtures[:pascal]
       end
-      
+
       it "should turn the filenames to underscores" do
-        server = server_with_keys([key_fixtures[:upcase]])
-        server.dump_keyfiles
-        it_should_generate_keyfile 'upcase_van@nb_upcase_stuff.pub'
+        it_should_generate_keyfile 'upcase_van.pub'
+      end
+
+      it "should number dublicate keynames" do
+        it_should_generate_keyfile 'pascal_friederich_2.pub'
+        it_should_generate_keyfile 'pascal_friederich_3.pub'
       end
     end
   end
@@ -82,7 +93,11 @@ def server_with_keys(keys)
 end
 
 def key_fixtures
-  @key_fixtures ||= {:pascal => 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0YllcgPG3lFhW1R6g1zHIOOZhW8fl5MsBxNQYFJnkNUvwcqcH1CLFr5ybdEwgOfjqT2YDLt9qY/cn4Wa1xLvPEph7nkdx6NW7VzcxcIiakgtEEGI+F6K0ux/3bXPIEIDZcaAmlfcnw+OkoqyQR1PWppT/74mc+6+GkCoewqgIhxuajPmjLK9eAtDjNGnwsN1t0+gZkc9HNWOxWGGGNyfoSgRPlIzr4cTDnfuRPzxZDKJXLd75RJIAhr2PQwQTrdhPurCG2+48AHul/D1mg+BzWeaXifl3pd8on/Buo97A6iLM+jcx1VjDzhVil6esS/+30XSEUANh974PlIECZnIFw== pascal.friederich@nb-pfriederich.local',
-                     :bob => 'ssh-rsa LKASJFLASJFLKASJFLAKSFNALSKVNasdfj0fj0Jf0j09Jf90jw0fj9w0fjJFIWJLFNlnfLNlknflewknaflefawelfhweaf8932y98ry239f832hfh3fh3fiuhkljdsfkjasbdfwhefhewkjfhenkhfnkejfhhdskfjhdskfjhsdkjfhskdjfhalksdjhfkjdfhalsdkfhklasdfhdskfhjdkfjhqufheufwhewiuf38h9fh3298fh2938fh9283hf9823hf9823hfk2j3hfkj23fkj23fkjh23kjfhljhaasdfsadfsadf90usdf90saudf09jas0f9jas0fj09wjf0932hf0923hf0h320f9h230f9h329h== bob.schneider@nb-pfriederich.local',
-                     :upcase => 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0YllcgPG3lFhW1R6g1zHIOOZhW8fl5MsBxNQYFJnkNUvwcqcH1CLFr5ybdEwgOfjqT2YDLt9qY/cn4Wa1xLvPEph7nkdx6NW7VzcxcIiakgtEEGI+F6K0ux/3bXPIEIDZcaAmlfcnw+OkoqyQR1PWppT/74mc+6+GkCoewqgIhxuajPmjLK9eAtDjNGnwsN1t0+gZkc9HNWOxWGGGNyfoSgRPlIzr4cTDnfuRPzxZDKJXLd75RJIAhr2PQwQTrdhPurCG2+48AHul/D1mg+BzWeaXifl3pd8on/Buo97A6iLM+jcx1VjDzhVil6esS/+30XSEUANh974PlIECZnIFw== upcase.VaN@nb-UPCASE.StuFF'}
+  @key_fixtures ||= {
+                       :pascal => 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0YllcgPG3lFhW1R6g1zHIOOZhW8fl5MsBxNQYFJnkNUvwcqcH1CLFr5ybdEwgOfjqT2YDLt9qY/cn4Wa1xLvPEph7nkdx6NW7VzcxcIiakgtEEGI+F6K0ux/3bXPIEIDZcaAmlfcnw+OkoqyQR1PWppT/74mc+6+GkCoewqgIhxuajPmjLK9eAtDjNGnwsN1t0+gZkc9HNWOxWGGGNyfoSgRPlIzr4cTDnfuRPzxZDKJXLd75RJIAhr2PQwQTrdhPurCG2+48AHul/D1mg+BzWeaXifl3pd8on/Buo97A6iLM+jcx1VjDzhVil6esS/+30XSEUANh974PlIECZnIFw== pascal.friederich@nb-pfriederich.local',
+                       :pascal_private  => 'ssh-rsa fajfoijewaofjewofjaweofnlwkaenfakdjngkaldsjgndkjsnflkjdsfnjsadfkjlasdfnasnfamlfaj9efj09waj09j3f029j3029j3f2j3f2uhfuhgkashgkljdsagkjeahh3iuf2h398fh329f8h32f983h2fh3n29unfup3fhapw39fhpa93fha9w3fh983bf2fubkbawekjbfabf,ebfa,menbfiufbawefuwefiweafiubewafibefbiuwbgiu4gbiueraghaeiuhfsdiofuhasdifuhaw9e8fh9f8h238fh239fhpawh3fp9ahwpfhawp39fhp490f8hawf8ha9ef8hawp9haugbs== pascal.friederich@private',
+                       :pascal_laptop  => 'ssh-rsa fajfoijewaofjewofjaweofnlwkaenfakdjngkaldsjgndkjsnflkjdsfnjsadfkjlasdfnasnfamlfaj9efj09waj09j3f029j3029j3f2j3f2uhfuhgkashgkljdsagkjeahh3iuf2h398fh329f8h32f983h2fh3n29unfup3fhapw39fhpa93fha9w3fh983bf2fubkbawekjbfabf,ebfa,menbfiufbawefuwefiweafiubewafibefbiuwbgiu4gbiueraghaeiuhfsdiofuhasdifuhaw9e8fh9f8h238fh239fhpawh3fp9ahwpfhawp39fhp490f8hawf8ha9ef8hawp9haugbs== pascal.friederich@laptop',
+                       :bob => 'ssh-rsa LKASJFLASJFLKASJFLAKSFNALSKVNasdfj0fj0Jf0j09Jf90jw0fj9w0fjJFIWJLFNlnfLNlknflewknaflefawelfhweaf8932y98ry239f832hfh3fh3fiuhkljdsfkjasbdfwhefhewkjfhenkhfnkejfhhdskfjhdskfjhsdkjfhskdjfhalksdjhfkjdfhalsdkfhklasdfhdskfhjdkfjhqufheufwhewiuf38h9fh3298fh2938fh9283hf9823hf9823hfk2j3hfkj23fkj23fkjh23kjfhljhaasdfsadfsadf90usdf90saudf09jas0f9jas0fj09wjf0932hf0923hf0h320f9h230f9h329h== bob.schneider@nb-pfriederich.local',
+                       :upcase => 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0YllcgPG3lFhW1R6g1zHIOOZhW8fl5MsBxNQYFJnkNUvwcqcH1CLFr5ybdEwgOfjqT2YDLt9qY/cn4Wa1xLvPEph7nkdx6NW7VzcxcIiakgtEEGI+F6K0ux/3bXPIEIDZcaAmlfcnw+OkoqyQR1PWppT/74mc+6+GkCoewqgIhxuajPmjLK9eAtDjNGnwsN1t0+gZkc9HNWOxWGGGNyfoSgRPlIzr4cTDnfuRPzxZDKJXLd75RJIAhr2PQwQTrdhPurCG2+48AHul/D1mg+BzWeaXifl3pd8on/Buo97A6iLM+jcx1VjDzhVil6esS/+30XSEUANh974PlIECZnIFw== upcase.VaN@nb-UPCASE.StuFF'
+                     }
 end
