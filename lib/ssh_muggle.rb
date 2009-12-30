@@ -1,9 +1,9 @@
 $:.unshift File.dirname(__FILE__)
+require 'vendor/gems/environment'
+require 'ssh_muggle/server'
+require 'ssh_muggle/server_pool'
 
-module SSHMuggle
-  autoload :Server, 'ssh_muggle/server'
-  autoload :ServerPool, 'ssh_muggle/server_pool'
-  
+module SSHMuggle  
   IP_FORMAT = /\A(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)(?:\.(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)){3}\z/
   
   def self.parse(hostsfile)

@@ -18,6 +18,15 @@ module SSHMuggle
     @authorized_keys.split("\n").map {|key| key.strip}.uniq.reject {|key| key == ""}
    end
 
+   def dump_keyfiles
+    keys.each do |key|
+      keyname = key[/\=\=\s(.*)$/, 1].gsub(/[^A-Z|^a-z|^@]/, '_')
+      File.open("keys/#{keyname.downcase}.pub", 'w+') do |file|
+        file.puts key
+      end
+    end
+   end
+
     private
       def load_remote_file(path)
         Net::SFTP.start(@hostname, 'root') do |sftp|

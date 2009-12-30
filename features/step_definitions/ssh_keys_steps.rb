@@ -12,11 +12,17 @@ Given /^the following hosts$/ do |string|
 end
 
 Given /^the following keys are on the servers$/ do |table|
-  @servers = {}
+  @keys = {}
   table.hashes.each do |values|
-    @servers[values["server"]] ||= []
-    @servers[values["server"]] << values["key"]
+    @keys[values["server"]] ||= []
+    @keys[values["server"]] << values["key"]
   end
+end
+
+Given /^the following keys have been fetched$/ do |table|
+  @muggle = SSHMuggle::Server.new("somehost")
+  @keys = {}
+  @keys["somehost"] = table.rows.flatten
 end
 
 #########
@@ -29,21 +35,26 @@ When /^I run the fetch_keys command for the server "([^\"]*)"$/ do |hostname|
   @muggle.fetch_keys
 end
 
-When /^I run the fetch_keys command$/ do
-  # debugger
+When /^I run the (.*) command$/ do |command|
   mock_fetch_keys_for(@muggle)
-  @muggle.fetch_keys
+  @muggle.send(command)
 end
 
 #########
 # THEN
 #########
 
-Then /^I should see the following keys$/ do |string|
+Then /^It should fetch the following keys$/ do |string|
   expected_keys = string.split("\n").map { |key| key.strip }
   actual_keys = @muggle.keys
   expected_keys.reject! {|key| actual_keys.flatten.member?(key.strip) }
   expected_keys.should == []
+end
+
+Then /^It should generate the following files$/ do |keyfiles|
+  keyfiles.hashes.each do |keyfile|
+    File.should be_file 'keys/' + keyfile["name"]
+  end
 end
 
 #########
@@ -69,7 +80,7 @@ end
 def redefine_load_remote_file(server)
   server.instance_eval <<-EVAL
     def load_remote_file(path)
-      '#{@servers[server.hostname].sort.join("\n")}'
+      '#{@keys[server.hostname].sort.join("\n")}'
     end
   EVAL
 end

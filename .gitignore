@@ -1,3 +1,6 @@
 .DS_Store
 features/tmp
 tester.rb
+bin/*
+vendor/gems/*
+!vendor/gems/cache/

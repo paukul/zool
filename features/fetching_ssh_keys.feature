@@ -8,7 +8,7 @@ Feature: Fetching SSH Keys
       | server     | key                                        |
       | preview    | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
     When I run the fetch_keys command for the server "preview"
-    Then I should see the following keys
+    Then It should fetch the following keys
       """
       ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO
       """
@@ -29,7 +29,7 @@ Feature: Fetching SSH Keys
       | 10.53.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
       | 10.53.1.41 | ssh-rsa key5== pascal.friederich@nb-pfriederich.local |
     When I run the fetch_keys command
-    Then I should see the following keys
+    Then It should fetch the following keys
       """
       ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           
       ssh-rsa key4== abel.fernandez@nb-afernandez.local    
@@ -37,3 +37,19 @@ Feature: Fetching SSH Keys
       ssh-rsa key3== lee.hambley@xing.com                  
       ssh-rsa key5== pascal.friederich@nb-pfriederich.local
       """
+
+  @fakefs
+  Scenario: Dumping the keys to files
+    Given the following keys have been fetched
+      | key                                                  |
+      | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
+      | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
+      | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
+      | ssh-rsa key3== lee.hambley@xing.com                  |
+    When I run the dump_keyfiles command
+    Then It should generate the following files
+      | name                                      | key                                                  |
+      | adem_deliceoglu@pc_adeliceo.pub           | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
+      | abelfernandez@nb_afernandez_local.pub     | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
+      | christian_kvalheim@nb_ckvalheim_local.pub | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
+      | lee_hambley@xing_com.pub                  | ssh-rsa key3== lee.hambley@xing.com                  |

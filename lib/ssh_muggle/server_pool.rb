@@ -12,7 +12,7 @@ module SSHMuggle
       def call_for_pool(method)
         servers.map do |server|
           server.send(method)
-        end
+        end.flatten
       end
 
       def method_missing(method, *args)
