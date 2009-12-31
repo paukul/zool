@@ -15,6 +15,19 @@ class Net::SCP
   end
 end
 
+class StringbufferMatcher
+  def initialize(expected)
+    @expected = expected
+  end
+  
+  def ==(actual)
+    actual.string == @expected
+  end
+end
+
+def stringbuffer_with(content)
+  StringbufferMatcher.new(content)
+end
 
 def key_fixtures
   @key_fixtures ||= {

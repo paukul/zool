@@ -25,3 +25,4 @@ Before do
   @muggle = nil
   @servers = nil
 end
+

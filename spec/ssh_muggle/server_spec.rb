@@ -24,6 +24,13 @@ module SSHMuggle
           @server.fetch_keys          
         end
       end
+      
+      context "when the keyfile is not presetn" do
+        it "should return an empty list of keys" do
+          Net::SCP.should_receive(:download!).and_raise(Net::SCP::Error)
+          @server.keys.should be_empty
+        end
+      end
 
       it "should load the authorized_keys file from the server" do
         @server = Server.new('somehost')
@@ -115,14 +122,14 @@ module SSHMuggle
 
         it "should write a authorized_keys file with all the keys" do          
           Net::SCP.should_receive(:upload!).with(any_args).ordered
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', @server.keys.join("\n"), @server.keyfile_location).ordered
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@server.keys.join("\n")), @server.keyfile_location).ordered
           @server.upload_keys
         end
 
         it "should backup the existing authorized_keys file" do
           @server.should_receive(:load_remote_file).and_return(@backup_keys)
 
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', @backup_keys, /authorized_keys_\d+$/).ordered
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@backup_keys), /authorized_keys_\d+$/).ordered
           Net::SCP.should_receive(:upload!).with(any_args).ordered
           @server.upload_keys
         end

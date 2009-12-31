@@ -49,7 +49,6 @@ end
 
 When /^I upload the keys to the server "([^\"]*)"$/ do |servername, table|
   @muggle = SSHMuggle::Server.new(servername)
-  mock_upload_keys_for(@muggle)
   @muggle.keys = table.rows
   @muggle.upload_keys
 end
@@ -74,8 +73,8 @@ Then /^It should generate the following files$/ do |keyfiles|
   keyfiles.diff!(actual_keyfiles)
 end
 
-Then /^the server "([^\"]*)" should have the authorized_keys file with the content$/ do |arg1, string|
-  pending # express the regexp above with the code you wish you had
+Then /^the server "([^\"]*)" should have the authorized_keys file with the content$/ do |server, expected_content|
+  File.read(TEST_TMP_PATH + "/servers/#{server}/authorized_keys").should == expected_content
 end
 
 #########
