@@ -20,7 +20,7 @@ module SSHMuggle
 
    def dump_keyfiles
     keys.each do |key|
-      KeyfileWriter.dump_key_to_file key
+      KeyfileWriter.write key
     end
    end
 

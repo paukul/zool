@@ -7,12 +7,18 @@ module SSHMuggle
       super
     end
     alias add <<
+    
+    def dump_keyfiles
+      keys.each do |key|
+        KeyfileWriter.write(key)
+      end
+    end
 
     private
       def call_for_pool(method)
         servers.map do |server|
           server.send(method)
-        end.flatten
+        end.flatten.uniq
       end
 
       def method_missing(method, *args)

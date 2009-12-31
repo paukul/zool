@@ -52,9 +52,14 @@ Then /^It should fetch the following keys$/ do |string|
 end
 
 Then /^It should generate the following files$/ do |keyfiles|
-  keyfiles.hashes.each do |keyfile|
-    File.should be_file 'keys/' + keyfile["name"]
+  actual_keyfiles = [['name', 'key']]
+  Dir['keys/*.pub'].map {|path| path.split('/').last }.each do |keyfile|
+    File.open("keys/#{keyfile}") do |file|
+      actual_keyfiles << [keyfile.strip, file.read.strip]
+    end
   end
+
+  keyfiles.diff!(actual_keyfiles)
 end
 
 #########

@@ -1,6 +1,6 @@
 module SSHMuggle
   module KeyfileWriter
-    def self.dump_key_to_file(key)
+    def self.write(key)
       key_name = key[/\=\=\s([^@]+).*$/, 1].gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
       key_count = Dir["keys/#{key_name}*.pub"].size
 

@@ -39,7 +39,7 @@ Feature: Fetching SSH Keys
       """
 
   @fakefs
-  Scenario: Dumping the keys to files
+  Scenario: Dumping a single servers keys to files
     Given the following keys have been fetched
       | key                                                  |
       | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
@@ -50,8 +50,27 @@ Feature: Fetching SSH Keys
     When I run the dump_keyfiles command
     Then It should generate the following files
       | name                          | key                                                  |
-      | adem_deliceoglu.pub           | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
       | abelfernandez.pub             | ssh-rsa key4== abelfernandez@nb-afernandez.local     |
+      | adem_deliceoglu.pub           | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           |
       | christian_kvalheim.pub        | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |
       | lee_hambley.pub               | ssh-rsa key3== lee.hambley@xing.com                  |
       | lee_hambley_2.pub             | ssh-rsa key5== lee.hambley@private                   |
+  
+  @fakefs
+  Scenario: Dumping all servers keys to files
+    Given the following hosts
+      """
+        10.52.1.41      preview
+        10.53.1.42      production
+      """
+    And the following keys are on the servers
+      | server     | key                                                   |
+      | 10.52.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
+      | 10.52.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |
+      | 10.53.1.42 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
+    When I run the fetch_keys command
+    And I run the dump_keyfiles command
+    Then It should generate the following files
+      | name                          | key                                                  |
+      | abel_fernandez.pub            | ssh-rsa key4== abel.fernandez@nb-afernandez.local    |
+      | christian_kvalheim.pub        | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local |

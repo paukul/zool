@@ -51,7 +51,7 @@ module SSHMuggle
     context "dumping the keys to files" do
       it "should write a keyfile for every key" do
         key_fixtures.values.each do |key|
-          KeyfileWriter.should_receive(:dump_key_to_file).with(key)
+          KeyfileWriter.should_receive(:write).with(key)
         end
         @server.stub!(:fetch_keys).and_return(key_fixtures.values.join("\n"))
         @server.dump_keyfiles
