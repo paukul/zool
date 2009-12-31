@@ -4,15 +4,17 @@ require 'net/scp'
 module SSHMuggle
   class Server
     attr_reader :hostname
+    attr_accessor :keyfile_location
 
     def initialize(hostname, user = "root")
       @hostname = hostname
       @user = user
+      @keyfile_location = default_keyfile_location
     end
 
     def fetch_keys
       @keys = nil
-      @raw_authorized_keys = load_remote_file('/root/.ssh/authorized_keys')
+      @raw_authorized_keys = load_remote_file
     end
 
    def keys
@@ -33,23 +35,24 @@ module SSHMuggle
    end
    
    def upload_keys
-     backup = StringIO.new
      begin
-       Net::SCP.download!(@hostname, 'root', '/root/.ssh/authorized_keys', backup)
-       Net::SCP.upload!(@hostname, 'root', backup.string, "/root/.ssh/authorized_keys_#{Time.now.to_i}")
+       backup = load_remote_file
+       Net::SCP.upload!(@hostname, @user, backup, "#{@keyfile_location}_#{Time.now.to_i}")
      rescue Exception => e
        raise "Error during backup of authorized keys file: #{e.message}"
      end
-     Net::SCP.upload!(@hostname, 'root', keys.join("\n"), '/root/.ssh/authorized_keys')
+     Net::SCP.upload!(@hostname, @user, keys.join("\n"), @keyfile_location)
    end
 
     private
-      def load_remote_file(path)
-        Net::SFTP.start(@hostname, 'root') do |sftp|
-          sftp.file.open(path) do |f|
-            return f.read
-          end
-        end
+      def load_remote_file
+        remote_file = StringIO.new
+        Net::SCP.download!(@hostname, @user, @keyfile_location, remote_file)
+        remote_file.string
       end
-  end
+      
+      def default_keyfile_location
+        '~/.ssh/authorized_keys'
+      end
+    end
 end

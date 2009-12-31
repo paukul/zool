@@ -9,15 +9,26 @@ module SSHMuggle
     end
 
     context "fetching a servers keys" do
-      it "should load the authorized_keys file from the server" do
-        host = "somehost"
-        sftp_stub = mock()
-        sftp_stub.should_receive(:file).and_return(sftp_stub)
-        sftp_stub.should_receive(:open).with('/root/.ssh/authorized_keys').and_yield(sftp_stub)
-        sftp_stub.should_receive(:read).and_return(key_fixtures[:pascal])
-        Net::SFTP.should_receive(:start).with(host, "root").and_yield(sftp_stub)
+      it "should use the default server location" do
+        Server.new('somehost').keyfile_location.should          == '~/.ssh/authorized_keys'
+        Server.new('somehost', 'peter').keyfile_location.should == '~/.ssh/authorized_keys'
+      end
+      
+      context "with a custom keyfile location set" do
+        it "should use the custom keyfile location" do
+          @server = Server.new('somehost')
+          custom_keyfile_location = '/some/custom/path'
+          @server.keyfile_location = custom_keyfile_location
+          Net::SCP.should_receive(:download!).with(anything, anything, custom_keyfile_location, anything)
 
-        @server = Server.new(host)
+          @server.fetch_keys          
+        end
+      end
+
+      it "should load the authorized_keys file from the server" do
+        @server = Server.new('somehost')
+        Net::SCP.should_receive(:download!).with(anything, anything, @server.keyfile_location, anything)
+
         @server.fetch_keys
       end
 
@@ -93,21 +104,22 @@ module SSHMuggle
       context "and uploading them" do
         before :each do
           @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
-          @backup_keys = StringIO.new('original keys')
-          StringIO.stub!(:new).and_return(@backup_keys)
+          @backup_keys = 'original keys'
+          @server.stub!(:load_remote_file).and_return(@backup_keys)
 
           Net::SCP.stub(:download!)
         end
 
         it "should write a authorized_keys file with all the keys" do          
           Net::SCP.should_receive(:upload!).with(any_args).ordered
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', @server.keys.join("\n"), '/root/.ssh/authorized_keys').ordered
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', @server.keys.join("\n"), @server.keyfile_location).ordered
           @server.upload_keys
         end
 
         it "should backup the existing authorized_keys file" do
-          Net::SCP.should_receive(:download!)
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', @backup_keys.string, /authorized_keys_\d+$/).ordered
+          @server.should_receive(:load_remote_file).and_return(@backup_keys)
+
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', @backup_keys, /authorized_keys_\d+$/).ordered
           Net::SCP.should_receive(:upload!).with(any_args).ordered
           @server.upload_keys
         end
