@@ -82,8 +82,11 @@ module SSHMuggle
 
     context "dumping the keys to files" do
       it "should write a keyfile for every key" do
+        writer = mock('writer')
+        KeyfileWriter.stub!(:new).and_return(writer)
+        
         key_fixtures.values.each do |key|
-          KeyfileWriter.should_receive(:write).with(key)
+          writer.should_receive(:write).with(key)
         end
         @server.stub!(:load_remote_file).and_return(key_fixtures.values.join("\n"))
         @server.dump_keyfiles

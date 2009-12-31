@@ -11,9 +11,10 @@ module SSHMuggle
           key_fixtures[:bob],
           key_fixtures[:upcase]
         ]
-
+        
+        writer = KeyfileWriter.new
         sorted_keys.each do |key|
-          KeyfileWriter.write key
+          writer.write key
         end
       end
 
@@ -23,8 +24,8 @@ module SSHMuggle
       end
 
       it "should write the ssh key in the appropriate keyfile" do
-        File.open('keys/bob_schneider.pub').read.chomp.should == key_fixtures[:bob]
-        File.open('keys/pascal_friederich.pub').read.chomp.should == key_fixtures[:pascal]
+        File.read('keys/bob_schneider.pub').chomp.should == key_fixtures[:bob]
+        File.read('keys/pascal_friederich.pub').chomp.should == key_fixtures[:pascal]
       end
 
       it "should turn the filenames to underscores" do

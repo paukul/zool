@@ -6,7 +6,7 @@ module SSHMuggle
     attr_reader :hostname
     attr_accessor :keyfile_location
 
-    def initialize(hostname, user = "root")
+    def initialize(hostname, user = 'root')
       @hostname = hostname
       @user = user
       @keyfile_location = default_keyfile_location
@@ -29,8 +29,9 @@ module SSHMuggle
    end
 
    def dump_keyfiles
+    key_writer = KeyfileWriter.new
     keys.each do |key|
-      KeyfileWriter.write key
+      key_writer.write key
     end
    end
    

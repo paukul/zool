@@ -9,9 +9,8 @@ Feature: Fetching SSH Keys
       | preview    | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
     When I run the fetch_keys command for the server "preview"
     Then It should fetch the following keys
-      """
-        ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO
-      """
+      | key                                        |
+      | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
 
   Scenario: Fetching all keys from all servers
     Given the following hosts
@@ -30,15 +29,13 @@ Feature: Fetching SSH Keys
       | 10.53.1.41 | ssh-rsa key5== pascal.friederich@nb-pfriederich.local |
     When I run the fetch_keys command
     Then It should fetch the following keys
-      """
-        ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO           
-        ssh-rsa key4== abel.fernandez@nb-afernandez.local    
-        ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  
-        ssh-rsa key3== lee.hambley@xing.com                  
-        ssh-rsa key5== pascal.friederich@nb-pfriederich.local
-      """
+        | key                                                   |
+        | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO            |
+        | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
+        | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  | 
+        | ssh-rsa key3== lee.hambley@xing.com                   |
+        | ssh-rsa key5== pascal.friederich@nb-pfriederich.local |
 
-  @fakefs
   Scenario: Dumping a single servers keys to files
     Given the following keys have been fetched
       | key                                                  |
@@ -56,7 +53,6 @@ Feature: Fetching SSH Keys
       | lee_hambley.pub               | ssh-rsa key3== lee.hambley@xing.com                  |
       | lee_hambley_2.pub             | ssh-rsa key5== lee.hambley@private                   |
   
-  @fakefs
   Scenario: Dumping all servers keys to files
     Given the following hosts
       """

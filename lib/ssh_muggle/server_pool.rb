@@ -9,8 +9,9 @@ module SSHMuggle
     alias add <<
     
     def dump_keyfiles
+      writer = KeyfileWriter.new
       keys.each do |key|
-        KeyfileWriter.write(key)
+        writer.write(key)
       end
     end
 
