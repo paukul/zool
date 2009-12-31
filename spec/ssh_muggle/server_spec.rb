@@ -80,15 +80,47 @@ module SSHMuggle
     end
     
     context "setting a servers keys" do
-      context "when the server doesn't already have any keys" do
-        before do
-          @server = Server.new('somehost')
-          @server.stub!(:load_remote_file).and_return("")
+      before do
+        @server = Server.new('somehost')
+        @server.stub!(:load_remote_file).and_return("")
+      end
+
+      it "should take a array of keys" do
+        @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
+        @server.keys.should == [key_fixtures[:pascal], key_fixtures[:bob]]
+      end
+
+      context "and uploading them" do
+        before :each do
+          @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
+          @backup_keys = StringIO.new('original keys')
+          StringIO.stub!(:new).and_return(@backup_keys)
+
+          Net::SCP.stub(:download!)
         end
 
-        it "should take a array of keys" do
-          @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
-          @server.keys.should == [key_fixtures[:pascal], key_fixtures[:bob]]
+        it "should write a authorized_keys file with all the keys" do          
+          Net::SCP.should_receive(:upload!).with(any_args).ordered
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', @server.keys.join("\n"), '/root/.ssh/authorized_keys').ordered
+          @server.upload_keys
+        end
+
+        it "should backup the existing authorized_keys file" do
+          Net::SCP.should_receive(:download!)
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', @backup_keys.string, /authorized_keys_\d+$/).ordered
+          Net::SCP.should_receive(:upload!).with(any_args).ordered
+          @server.upload_keys
+        end
+
+        context "with an exception during backup of the original keys" do
+          before do
+            Net::SCP.stub!(:download!).and_raise(Exception)
+          end
+
+          it "should not upload the new keys" do
+            Net::SCP.should_not_receive(:upload!)
+            lambda { @server.upload_keys }.should raise_error
+          end
         end
       end
     end

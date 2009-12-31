@@ -1,4 +1,5 @@
 require 'net/sftp'
+require 'net/scp'
 
 module SSHMuggle
   class Server
@@ -29,6 +30,17 @@ module SSHMuggle
     keys.each do |key|
       KeyfileWriter.write key
     end
+   end
+   
+   def upload_keys
+     backup = StringIO.new
+     begin
+       Net::SCP.download!(@hostname, 'root', '/root/.ssh/authorized_keys', backup)
+       Net::SCP.upload!(@hostname, 'root', backup.string, "/root/.ssh/authorized_keys_#{Time.now.to_i}")
+     rescue Exception => e
+       raise "Error during backup of authorized keys file: #{e.message}"
+     end
+     Net::SCP.upload!(@hostname, 'root', keys.join("\n"), '/root/.ssh/authorized_keys')
    end
 
     private

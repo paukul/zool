@@ -3,6 +3,19 @@ require 'ssh_muggle'
 require 'spec'
 require 'fakefs'
 
+class Net::SCP
+  class << self
+    def disallow_file_operation(a, b, c, d)
+      raise("unexpected call to SCP in test environment, see #{__FILE__}:#{__LINE__}")
+    end
+    alias upload!   disallow_file_operation
+    alias upload    disallow_file_operation
+    alias download! disallow_file_operation
+    alias download  disallow_file_operation
+  end
+end
+
+
 def key_fixtures
   @key_fixtures ||= {
                        :pascal => 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0YllcgPG3lFhW1R6g1zHIOOZhW8fl5MsBxNQYFJnkNUvwcqcH1CLFr5ybdEwgOfjqT2YDLt9qY/cn4Wa1xLvPEph7nkdx6NW7VzcxcIiakgtEEGI+F6K0ux/3bXPIEIDZcaAmlfcnw+OkoqyQR1PWppT/74mc+6+GkCoewqgIhxuajPmjLK9eAtDjNGnwsN1t0+gZkc9HNWOxWGGGNyfoSgRPlIzr4cTDnfuRPzxZDKJXLd75RJIAhr2PQwQTrdhPurCG2+48AHul/D1mg+BzWeaXifl3pd8on/Buo97A6iLM+jcx1VjDzhVil6esS/+30XSEUANh974PlIECZnIFw== pascal.friederich@nb-pfriederich.local',
