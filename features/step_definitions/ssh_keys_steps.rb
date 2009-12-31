@@ -25,6 +25,10 @@ Given /^the following keys have been fetched$/ do |table|
   @keys["somehost"] = table.rows.flatten
 end
 
+Given /^the server "([^\"]*)" without a key file$/ do |servername|
+  temp_server_path(servername)
+end
+
 #########
 # WHEN
 #########
@@ -38,6 +42,13 @@ end
 When /^I run the (.*) command$/ do |command|
   mock_fetch_keys_for(@muggle)
   @muggle.send(command)
+end
+
+When /^I upload the keys to the server "([^\"]*)"$/ do |servername, table|
+  @muggle = SSHMuggle::Server.new(servername)
+  mock_upload_keys_for(@muggle)
+  @muggle.keys = table.rows
+  @muggle.upload_keys
 end
 
 #########
@@ -62,11 +73,15 @@ Then /^It should generate the following files$/ do |keyfiles|
   keyfiles.diff!(actual_keyfiles)
 end
 
+Then /^the server "([^\"]*)" should have the authorized_keys file with the content$/ do |arg1, string|
+  pending # express the regexp above with the code you wish you had
+end
+
 #########
 # HELPER
 #########
-def temp_server_ssh_path(server)
-  path = File.expand_path(File.dirname(__FILE__) + "/../tmp/#{server}/")
+def temp_server_path(server)
+  path = "fake_servers/#{server}"
   return path if File.directory?(path)
   FileUtils.mkdir_p path
   path
@@ -88,4 +103,8 @@ def redefine_load_remote_file(server)
       '#{@keys[server.hostname].sort.join("\n")}'
     end
   EVAL
+end
+
+def mock_upload_keys_for(server)
+  
 end

@@ -8,14 +8,21 @@ module SSHMuggle
       @hostname = hostname
       @user = user
     end
-    
+
     def fetch_keys
-      @authorized_keys = load_remote_file('/root/.ssh/authorized_keys')
+      @keys = nil
+      @raw_authorized_keys = load_remote_file('/root/.ssh/authorized_keys')
     end
-   
+
    def keys
-    @authorized_keys ||= fetch_keys
-    @authorized_keys.split("\n").map {|key| key.strip}.uniq.reject {|key| key == ""}
+    @keys ||= begin
+      @raw_authorized_keys ||= fetch_keys
+      @raw_authorized_keys.split("\n").map {|key| key.strip}.uniq.reject {|key| key == ""}
+    end
+   end
+
+   def keys=(new_keys)
+    @keys = new_keys
    end
 
    def dump_keyfiles
