@@ -26,12 +26,16 @@ Given /^the following keys are on the servers$/ do |table|
 end
 
 Given /^the following keys have been fetched$/ do |table|
-  @muggle = SSHMuggle::Server.new('localhost')
+  Given 'the server "localhost"'
   @muggle.keys = table.rows.flatten
 end
 
 Given /^the server "([^\"]*)" without a key file$/ do |servername|
-  fake_server_dir!(servername)
+    Given "the server \"localhost\""
+end
+
+Given /^the server "([^\"]*)"$/ do |servername|
+  @muggle = SSHMuggle::Server.new(servername)
 end
 
 #########
@@ -41,6 +45,10 @@ end
 When /^I run the fetch_keys command for the server "([^\"]*)"$/ do |hostname|
   @muggle = SSHMuggle::Server.new(hostname)
   @muggle.fetch_keys
+end
+
+When /^I add the key "([^\"]*)"$/ do |key|
+  @muggle.keys << key
 end
 
 When /^I run the (.*) command$/ do |command|

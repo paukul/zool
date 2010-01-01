@@ -4,7 +4,7 @@ Debugger.start
 
 module SSHMuggle
   describe Server do
-    before do
+    before :each do
       @server = Server.new("somehost")
     end
 
@@ -89,26 +89,36 @@ module SSHMuggle
 
     context "dumping the keys to files" do
       it "should write a keyfile for every key" do
-        writer = mock('writer')
-        KeyfileWriter.stub!(:new).and_return(writer)
-        
-        key_fixtures.values.each do |key|
-          writer.should_receive(:write).with(key)
-        end
+        FileUtils.rm_r 'keys' # cleanup old keyfiles
         @server.stub!(:load_remote_file).and_return(key_fixtures.values.join("\n"))
         @server.dump_keyfiles
+        Dir['keys/*'].should have(key_fixtures.size).keys
       end
     end
     
     context "setting a servers keys" do
-      before do
+      before :each do
         @server = Server.new('somehost')
         @server.stub!(:load_remote_file).and_return("")
       end
 
-      it "should take a array of keys" do
-        @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
-        @server.keys.should == [key_fixtures[:pascal], key_fixtures[:bob]]
+      context "by replacing all of them" do
+        it "should take a array of keys" do
+          @server.keys = [key_fixtures[:pascal], key_fixtures[:bob]]
+          @server.keys.should == [key_fixtures[:pascal], key_fixtures[:bob]]
+        end
+
+        it "should not fetch the servers existing keys" do
+          @server.should_not_receive(:load_remote_file)
+          @server.keys = [key_fixtures[:pascal]]
+        end
+      end
+
+      context "by adding keys to the existing keys" do
+        it "sould fetch the servers current keys if not done before" do
+          @server.should_receive(:load_remote_file)
+          @server.keys << "asdf"
+        end        
       end
 
       context "and uploading them" do
@@ -135,7 +145,7 @@ module SSHMuggle
         end
 
         context "with an exception during backup of the original keys" do
-          before do
+          before :each do
             Net::SCP.stub!(:download!).and_raise(Exception)
           end
 

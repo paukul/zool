@@ -30,9 +30,7 @@ module SSHMuggle
 
    def dump_keyfiles
     key_writer = KeyfileWriter.new
-    keys.each do |key|
-      key_writer.write key
-    end
+    key_writer.write_keys keys
    end
    
    def upload_keys

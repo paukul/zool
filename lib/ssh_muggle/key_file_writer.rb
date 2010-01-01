@@ -6,6 +6,12 @@ module SSHMuggle
       @out_directory = out_directory
     end
 
+    def write_keys(keys)
+      keys.each do |key|
+        write key
+      end
+    end
+
     def write(key)
       key_name = key[/\=\=\s([^@]+).*$/, 1].gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
       key_count = Dir["#{out_directory}/#{key_name}*.pub"].size

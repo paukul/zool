@@ -21,7 +21,7 @@ class SSHMuggle::KeyfileWriter
 end
 
 Before do
-  FileUtils.rm_r TEST_TMP_PATH
+  FileUtils.rm_r TEST_TMP_PATH if File.directory? TEST_TMP_PATH
   @muggle = nil
   @servers = nil
 end

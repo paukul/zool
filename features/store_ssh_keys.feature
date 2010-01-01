@@ -22,6 +22,18 @@ Feature: Store ssh keys on servers
       ssh-rsa key5== pascal.friederich@nb-pfriederich.local
       """
   
-  
-  
-  
+  Scenario: adding a single key to a servers keyfile
+    Given the server "10.52.1.41" 
+    And the following keys are on the servers
+      | server     | key                                                   |
+      | 10.52.1.41 | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO            |
+      | 10.52.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |    
+    When I add the key "ssh-rsa key4== abel.fernandez@nb-afernandez.local"
+    And I run the upload_keys command
+    Then the server "10.52.1.41" should have the authorized_keys file with the content
+      """
+      ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO
+      ssh-dss key2== christian.kvalheim@nb-ckvalheim.local
+      ssh-rsa key4== abel.fernandez@nb-afernandez.local
+      """
+    
