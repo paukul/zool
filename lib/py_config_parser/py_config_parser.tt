@@ -1,0 +1,85 @@
+grammar PyConfig
+  rule main
+    section*
+    {
+      def build
+        @config = {}
+        elements.each do |section| 
+          @config[section.name] = section.build
+        end
+        @config
+      end
+    }
+  end
+
+  rule section
+    space* '[' sectionname ']' eol
+    pairs:(sectionvalue eol)+
+    white*
+    {
+      def name
+        sectionname.text_value
+      end
+  
+      def build
+        return pairs.elements.inject({}) do |pairs, elt|
+          pairs.merge!(elt.sectionvalue.build)
+          pairs
+        end
+      end
+    }
+  end
+
+  rule sectionname
+  (string / space)+
+  end
+
+  rule sectionvalue
+  space* key separator value
+  {
+    def build
+      separator.build(key, value)
+    end
+  }
+  end
+
+  rule separator
+  space* ':' space*
+  {
+    def build(key, value)
+      {key.text_value => value.text_value.strip}
+    end
+  }
+  /
+  space* '=' space*
+  {
+    def build(key, value)
+      {key.text_value => value.text_value.split(',').map {|val| val.strip }}
+    end
+  }
+  end
+
+  rule key
+    string
+  end
+
+  rule value
+    [^\n]*
+  end
+
+  rule string
+    [a-zA-Z_0-9]+
+  end
+
+  rule white
+    (space / eol)
+  end
+
+  rule space
+    [ \t]
+  end
+
+  rule eol
+    "\n" / ("\r" "\n"?)
+  end
+end
