@@ -12,11 +12,7 @@ Given /^the following hosts$/ do |string|
 end
 
 Given /^the following keys are on the servers$/ do |table|
-  keys = {}
-  table.hashes.each do |values|
-    keys[values["server"]] ||= []
-    keys[values["server"]] << values["key"]
-  end
+  keys = server_with_keys_from_table(table)
   
   keys.each do |host, keys|
     File.open(fake_server_dir!(host) + '/authorized_keys', 'w+') do |file|
@@ -85,6 +81,15 @@ Then /^the server "([^\"]*)" should have the authorized_keys file with the conte
   File.read(TEST_TMP_PATH + "/servers/#{server}/authorized_keys").should == expected_content
 end
 
+Then /^the following keys should be on the servers$/ do |table|
+  actual_keys_from_server = [['server', 'key']]
+  server_with_keys_from_table(table).each do |server, keys|
+    entries = File.read(TEST_TMP_PATH + "/servers/#{server}/authorized_keys").split("\n").map {|key| [server, key]}
+    actual_keys_from_server += entries
+  end
+  table.diff!(actual_keys_from_server)
+end
+
 #########
 # HELPER
 #########
@@ -97,4 +102,13 @@ end
 
 def fake_server_dir(host)
   TEST_TMP_PATH + "/servers/#{host}"
+end
+
+def server_with_keys_from_table(table)
+  keys = {}
+  table.hashes.each do |values|
+    keys[values["server"]] ||= []
+    keys[values["server"]] << values["key"]
+  end
+  keys
 end

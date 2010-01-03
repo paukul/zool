@@ -1,12 +1,18 @@
 module SSHMuggle
   class ServerPool < Array
     alias servers entries
-    DELEGATE_METHODS = %w(keys fetch_keys)
 
-    DELEGATE_METHODS.each do |delegate_method|
-      define_method delegate_method do
-        call_for_pool(delegate_method)
-      end
+    def keys
+      @keys_proxy ||= KeysProxy.new(self)
+    end
+
+    def fetch_keys
+      call_for_pool(:fetch_keys)
+      @keys_proxy = nil
+    end
+
+    def upload_keys
+      call_for_pool(:upload_keys)
     end
 
     def <<(object)
@@ -28,5 +34,18 @@ module SSHMuggle
           server.send(method)
         end.flatten.uniq
       end
+  end
+  
+  class KeysProxy < Array
+    def initialize(pool)
+      @pool = pool
+      super @pool.send(:call_for_pool, :keys)
+    end
+    
+    def <<(key)
+      @pool.each do |server|
+        server.keys << key
+      end
+    end
   end
 end

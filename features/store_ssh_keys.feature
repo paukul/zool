@@ -36,4 +36,27 @@ Feature: Store ssh keys on servers
       ssh-dss key2== christian.kvalheim@nb-ckvalheim.local
       ssh-rsa key4== abel.fernandez@nb-afernandez.local
       """
+  
+  Scenario: adding a single key to a serverpools keyfiles
+    Given the following hosts
+      """
+        10.52.1.41      preview
+        10.52.1.42      edge
+      """
+    And the following keys are on the servers
+      | server     | key                                   |
+      | 10.52.1.41 | ssh-rsa key1== some.key@somehost      |
+      | 10.52.1.41 | ssh-rsa key4== anotherkey@ahost.local |
+      | 10.52.1.41 | ssh-dss key2== thiskey@thishost.local |
+      | 10.52.1.42 | ssh-rsa key3== snafu@bar.com          |
+    When I add the key "ssh-rsa key5== additionalkey@host"
+    And I run the upload_keys command
+    Then the following keys should be on the servers
+      | server     | key                                   |
+      | 10.52.1.41 | ssh-rsa key1== some.key@somehost      |
+      | 10.52.1.41 | ssh-rsa key4== anotherkey@ahost.local |
+      | 10.52.1.41 | ssh-dss key2== thiskey@thishost.local |
+      | 10.52.1.41 | ssh-rsa key5== additionalkey@host     |
+      | 10.52.1.42 | ssh-rsa key3== snafu@bar.com          |
+      | 10.52.1.42 | ssh-rsa key5== additionalkey@host     |
     
