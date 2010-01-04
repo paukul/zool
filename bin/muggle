@@ -63,6 +63,7 @@ class MuggleClient
       file.puts config
     end
     $stdout.puts "  [DONE]"
+    dump_keyfiles(pool)
   end
 
   def method_missing(method, *args)
