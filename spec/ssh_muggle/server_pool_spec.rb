@@ -24,6 +24,18 @@ module SSHMuggle
           pool = ServerPool.from_hostfile(hostsfile)
           pool.servers.map {|server| server.hostname }.should == ['12.21.4.1', '12.21.4.2']
         end
+        
+        it "should remove localhost and networks from the list of servers" do
+          hostfile = StringIO.new <<-HOSTS
+            12.34.45.56     validserver
+            localhost       localhost
+            127.0.0.1       localhost
+            255.255.255.255 network
+            ::1             localhost
+          HOSTS
+          pool = ServerPool.from_hostfile(hostfile)
+          pool.servers.map {|server| server.hostname }.should == ['12.34.45.56']
+        end
 
         it "should ignore malformed lines" do
           hostsfile = StringIO.new <<-HOSTS

@@ -1,3 +1,6 @@
+require 'ruby-debug'
+Debugger.start
+
 module SSHMuggle
   class KeyfileWriter
     attr_accessor :out_directory
@@ -13,7 +16,13 @@ module SSHMuggle
     end
 
     def write(key, outname = nil)
-      key_name = outname || key[/\=\=\s([^@]+).*$/, 1].gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
+      key_name = outname || begin
+        temp_name = key[/^\S*\s\S*\s([^@]+)\S.*$/, 1]
+        if temp_name.nil?
+          debugger
+        end
+        temp_name.gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
+      end
       key_count = Dir["#{out_directory}/#{key_name}*.pub"].size
 
       key_name += "_#{key_count + 1}" if key_count > 0

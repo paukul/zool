@@ -44,15 +44,26 @@ module SSHMuggle
      Net::SCP.upload!(@hostname, @user, StringIO.new(keys.join("\n")), @keyfile_location)
    end
 
+   def to_s
+    "<SSHMuggle::Server #{hostname}>"
+   end
+
     private
       def load_remote_file
-        remote_file = StringIO.new
+        downloaded_file = StringIO.new
         begin
-          Net::SCP.download!(@hostname, @user, @keyfile_location, remote_file)
+          Timeout::timeout(2) do
+            log "Fetching key from #{@hostname}"
+            Net::SCP.download!(@hostname, @user, @keyfile_location, downloaded_file, :timeout => 10)
+          end
         rescue Net::SCP::Error
           log "Warning! Empty keyfile" # logging? later... :P
+        rescue Net::SSH::AuthenticationFailed
+          log "No access to Server #{@hostname}"
+        rescue Errno::ETIMEDOUT, Timeout::Error
+          log "Access to server #{@hostname} timed out"
         end
-        remote_file.string
+        downloaded_file.string
       end
       
       def default_keyfile_location

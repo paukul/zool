@@ -5,7 +5,9 @@ module SSHMuggle
     def self.from_hostfile(hostsfile)
       hosts = hostsfile.to_a.map { |host| host.split[0] }
       hosts.uniq!
+      invalid_hosts = %w(127.0.0.1 255.255.255.255)
       hosts.reject! { |host| host !~ IP_FORMAT }
+      hosts.reject! { |host| invalid_hosts.include?(host) }
       pool = self.new
 
       hosts.each do |host|

@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+require 'lib/ssh_muggle'
+require 'optparse'
+
+class MuggleClient
+  VALID_COMMANDS = %w(fetch)
+  
+  def initialize(opts)
+    @opts = opts
+  end
+  
+  def fetch
+    pool = SSHMuggle::ServerPool.from_hostfile(File.read('/etc/hosts'))
+    pool.dump_keyfiles
+  end
+
+  def method_missing(method, *args)
+    exit_with_help("That command isn't supportet!")
+  end
+  
+  private
+    def exit_with_help(msg)
+      reason = "\n    #{msg}\n    Valid commands: #{VALID_COMMANDS.join(', ')}\n\n#{@opts}\n"
+      abort(reason)
+    end
+end
+
+opts = OptionParser.new do |o|
+  o.banner = "Usage: muggle [options]"
+
+  o.on("-h", "--help", "This help screen" ) do
+    puts o
+    exit
+  end
+end
+
+opts.parse!(ARGV)
+client = MuggleClient.new(opts)
+
+client.send(ARGV[0])
