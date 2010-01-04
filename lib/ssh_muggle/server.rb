@@ -3,6 +3,7 @@ require 'net/scp'
 
 module SSHMuggle
   class Server
+    class ConnectionVerificationExecption < Exception; end
     attr_reader :hostname
     attr_accessor :keyfile_location
 
@@ -33,15 +34,46 @@ module SSHMuggle
     key_writer.write_keys keys
    end
    
-   def upload_keys
+   def create_backup
      begin
        backup = load_remote_file
-       Net::SCP.upload!(@hostname, @user, StringIO.new(backup), "#{@keyfile_location}_#{Time.now.to_i}")
+       backup_filename = "#{@keyfile_location}_#{Time.now.to_i}"
+       Net::SCP.upload!(@hostname, @user, StringIO.new(backup), backup_filename)
+       backup_filename
      rescue Net::SCP::Error => e
-       log "Error during backup of authorized keys file: #{e.message}"
+       logger.fatal "Error during backup of authorized keys file: #{e.message}"
        raise
      end
-     Net::SCP.upload!(@hostname, @user, StringIO.new(keys.join("\n")), @keyfile_location)
+   end
+   
+   def upload_keys
+     remote_backup_file = create_backup
+     begin
+       backup_channel = Net::SSH.start(@hostname, @user, :password => '')
+       main_channel   = Net::SSH.start(@hostname, @user, :password => '')
+       main_channel.scp.upload!(StringIO.new(keys.join("\n")), @keyfile_location)
+       main_channel.close
+       begin
+         logger.info "Trying to connect to #{@hostname} to see if I still have access"
+         Net::SSH.start(@hostname, @user, :password => '')
+         logger.info "Backup channel connection succeeded. Assuming everything went fine!"
+       rescue Net::SSH::AuthenticationFailed => e
+         if !@rolled_back
+           logger.warn "!!!!!! Could not login to server after upload operation! Rolling back !!!!!!"
+           backup_channel.exec "mv #{remote_backup_file} #{@keyfile_location}"
+           backup_channel.loop
+           @rolled_back = true
+           retry
+         else
+           logger.fatal "Tried to role back... didnt work... giving up... sorry :("
+           raise e
+         end
+       end
+     ensure
+       main_channel.close unless main_channel.closed?
+       backup_channel.close unless backup_channel.closed?
+     end
+     raise ConnectionVerificationExecption.new("Error after uploading the keyfile to #{@hostname}") if @rolled_back
    end
 
    def to_s

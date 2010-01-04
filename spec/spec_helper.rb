@@ -3,6 +3,12 @@ require 'ssh_muggle'
 require 'spec'
 require 'fakefs'
 
+module Net::SSH
+  def self.start
+    raise("unexpected call to SCP in test environment, see #{__FILE__}:#{__LINE__}")
+  end
+end
+
 class Net::SCP
   class << self
     def disallow_file_operation(a, b, c, d)

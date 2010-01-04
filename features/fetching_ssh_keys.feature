@@ -6,8 +6,8 @@ Feature: Fetching SSH Keys
   Scenario: Fetching all keys from a server
     Given the following keys are on the servers
       | server     | key                                        |
-      | preview    | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
-    When I run the fetch_keys command for the server "preview"
+      | preview_server    | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
+    When I run the fetch_keys command for the server "preview_server"
     Then It should fetch the following keys
       | key                                        |
       | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO |
@@ -15,16 +15,16 @@ Feature: Fetching SSH Keys
   Scenario: Fetching all keys from all servers
     Given the following hosts
       """
-        10.52.1.41      preview
-        10.52.1.42      edge
-        10.53.1.41      production
+        13.9.1.41      preview_server
+        13.9.1.42      edge_server
+        10.53.1.41      production_server
       """
     And the following keys are on the servers
       | server     | key                                                   |
-      | 10.52.1.41 | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO            |
-      | 10.52.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
-      | 10.52.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |
-      | 10.52.1.42 | ssh-rsa key3== lee.hambley@xing.com                   |
+      | 13.9.1.41 | ssh-rsa key1== Adem.Deliceoglu@PC-ADELICEO            |
+      | 13.9.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
+      | 13.9.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |
+      | 13.9.1.42 | ssh-rsa key3== lee.hambley@xing.com                   |
       | 10.53.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
       | 10.53.1.41 | ssh-rsa key5== pascal.friederich@nb-pfriederich.local |
     When I run the fetch_keys command
@@ -56,13 +56,13 @@ Feature: Fetching SSH Keys
   Scenario: Dumping all servers keys to files
     Given the following hosts
       """
-        10.52.1.41      preview
-        10.53.1.42      production
+        13.9.1.41      preview_server
+        10.53.1.42      production_server
       """
     And the following keys are on the servers
       | server     | key                                                   |
-      | 10.52.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
-      | 10.52.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |
+      | 13.9.1.41 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
+      | 13.9.1.41 | ssh-dss key2== christian.kvalheim@nb-ckvalheim.local  |
       | 10.53.1.42 | ssh-rsa key4== abel.fernandez@nb-afernandez.local     |
     When I run the fetch_keys command
     And I run the dump_keyfiles command

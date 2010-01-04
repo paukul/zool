@@ -37,7 +37,14 @@ class MuggleClient
     $stdout.puts "NOW pray to the gods... "
     $stdout.puts "Going to deploy to #{configuration.servers.keys.join(",")}"
     $stdout.print "Uploading..."
-    configuration.upload_keys
+    begin
+      configuration.upload_keys
+    rescue SSHMuggle::Server::ConnectionVerificationExecption => e
+      $stdout.puts "   [FAIL]"
+      $stdout.puts "Could not connect to a Server after updating the authorized_keys file. Tried to roll back!"
+      $stdout.puts e.message
+      exit
+    end
     $stdout.puts "   [DONE]"
     $stdout.puts "Go check if everything is fine!"
   end

@@ -62,7 +62,7 @@ module SSHMuggle
         it "should return a configuration object with the parsed configuration hash" do
           conf = <<-CONF
           [role app]
-            servers = 10.52.6.1, 10.52.6.2
+            servers = 13.9.6.1, 13.9.6.2
             keys = &qa, peter
           
           [group qa]
@@ -90,17 +90,17 @@ module SSHMuggle
 
         @conf_hash = {
           "role app" => {
-            'servers' => ['preview', 'production', 'edge'],
+            'servers' => ['preview_server', 'production_server', 'edge_server'],
             'keys' => ['&qa']
           },
           "role cron servers" => {
-            'servers' => ['crn1', 'crn2', 'edge'],
+            'servers' => ['crn1', 'crn2', 'edge_server'],
             'keys' => ['system', 'log']
           },
           "group qa" => {
             'members' => ['peter', 'paul']
           },
-          "server 10.52.6.1" => {
+          "server 13.9.6.1" => {
             'keys' => ['system']
           }
         }
@@ -108,7 +108,7 @@ module SSHMuggle
       end
       
       it "should create a server for every server section" do
-        @configuration.servers['10.52.6.1'].keys.should include(@keyfile_stub_data['system'])
+        @configuration.servers['13.9.6.1'].keys.should include(@keyfile_stub_data['system'])
       end
       
       it "should create a serverpool for every role" do
@@ -121,16 +121,16 @@ module SSHMuggle
       end
       
       it "should add a groups keys to the serverpool" do
-        @configuration.servers['preview'].keys.should include(@keyfile_stub_data['peter'])
+        @configuration.servers['preview_server'].keys.should include(@keyfile_stub_data['peter'])
       end
       
       it "should have only one server object per hostname shared between groups" do
-        edges_keys = @configuration.servers['edge'].keys
-        edges_keys.should include(@keyfile_stub_data['system'])
-        edges_keys.should include(@keyfile_stub_data['paul'])
-        edges_keys.should include(@keyfile_stub_data['peter'])
-        edges_keys.should include(@keyfile_stub_data['log'])
-        edges_keys.should have(4).keys
+        edge_servers_keys = @configuration.servers['edge_server'].keys
+        edge_servers_keys.should include(@keyfile_stub_data['system'])
+        edge_servers_keys.should include(@keyfile_stub_data['paul'])
+        edge_servers_keys.should include(@keyfile_stub_data['peter'])
+        edge_servers_keys.should include(@keyfile_stub_data['log'])
+        edge_servers_keys.should have(4).keys
       end
       
       context "calling the upload_keys method" do

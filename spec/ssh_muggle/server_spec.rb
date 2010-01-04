@@ -131,16 +131,20 @@ module SSHMuggle
         end
 
         it "should write a authorized_keys file with all the keys" do          
-          Net::SCP.should_receive(:upload!).with(any_args).ordered
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@server.keys.join("\n")), @server.keyfile_location).ordered
+          channel_stub = stub('ssh channel stub', :null_object => true)
+          Net::SSH.stub!(:start).and_return(channel_stub)
+          Net::SCP.stub!(:upload!) # the backup
+          channel_stub.stub(:scp).and_return(channel_stub)
+
+          channel_stub.should_receive(:upload!).with(stringbuffer_with(@server.keys.join("\n")), @server.keyfile_location).ordered
           @server.upload_keys
         end
 
         it "should backup the existing authorized_keys file" do
           @server.should_receive(:load_remote_file).and_return(@backup_keys)
-
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@backup_keys), /authorized_keys_\d+$/).ordered
-          Net::SCP.should_receive(:upload!).with(any_args).ordered
+          Net::SSH.stub!(:start).and_return(stub('ssh channel stub', :null_object => true))
+          
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@backup_keys), /authorized_keys_\d+$/)
           @server.upload_keys
         end
 
@@ -153,6 +157,10 @@ module SSHMuggle
             Net::SCP.should_not_receive(:upload!)
             lambda { @server.upload_keys }.should raise_error
           end
+        end
+        
+        context "providing a fallback if something goes wrong" do
+          
         end
       end
     end
