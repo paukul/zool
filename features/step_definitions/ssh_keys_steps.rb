@@ -6,14 +6,23 @@ Debugger.start
 # GIVEN
 #########
 
+Given /^the local keyfiles$/ do |table|
+  writer = SSHMuggle::KeyfileWriter.new
+  table.hashes.each {|keyfile| writer.write(keyfile['key'], keyfile['name'])}
+end
+
+Given /^the config$/ do |string|
+  @config = string
+end
+
 Given /^the following hosts$/ do |string|
   hosts = StringIO.new(string)
-  @muggle = SSHMuggle::parse hosts
+  @muggle = SSHMuggle::ServerPool.from_hostfile hosts
 end
 
 Given /^the following keys are on the servers$/ do |table|
   keys = server_with_keys_from_table(table)
-  
+
   keys.each do |host, keys|
     File.open(fake_server_dir!(host) + '/authorized_keys', 'w+') do |file|
       file.write(keys.join("\n"))
@@ -37,6 +46,11 @@ end
 #########
 # WHEN
 #########
+
+When /^I parse the config and run the upload_keys command$/ do
+  @muggle = SSHMuggle::Configuration.parse(@config)
+  @muggle.upload_keys
+end
 
 When /^I run the fetch_keys command for the server "([^\"]*)"$/ do |hostname|
   @muggle = SSHMuggle::Server.new(hostname)

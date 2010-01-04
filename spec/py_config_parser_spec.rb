@@ -9,6 +9,7 @@ describe PyConfigParser do
       key:value
       multiple_values=foo, bar, baz
       sticky_values=blim,blam,blum
+      
     [with whitespace]
       key2: value2
       key3 : value3

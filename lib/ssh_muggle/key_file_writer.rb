@@ -12,8 +12,8 @@ module SSHMuggle
       end
     end
 
-    def write(key)
-      key_name = key[/\=\=\s([^@]+).*$/, 1].gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
+    def write(key, outname = nil)
+      key_name = outname || key[/\=\=\s([^@]+).*$/, 1].gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
       key_count = Dir["#{out_directory}/#{key_name}*.pub"].size
 
       key_name += "_#{key_count + 1}" if key_count > 0

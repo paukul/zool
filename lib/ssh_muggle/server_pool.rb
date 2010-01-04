@@ -13,7 +13,7 @@ module SSHMuggle
       end
       pool
     end
-    
+
     alias servers entries
 
     def keys
@@ -40,6 +40,10 @@ module SSHMuggle
       keys.each do |key|
         writer.write(key)
       end
+    end
+    
+    def inspect
+      "#<SSHMuggle::ServerPool @servers=[#{servers.join(', ')}]>"
     end
 
     private
