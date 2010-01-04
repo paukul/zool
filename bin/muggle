@@ -3,17 +3,45 @@ require 'lib/ssh_muggle'
 require 'optparse'
 
 class MuggleClient
-  VALID_COMMANDS = %w(fetch setup)
+  VALID_COMMANDS = %w(fetch setup fake apply)
   
-  def initialize(opts)
-    @opts = opts
+  def initialize
+    @options = {
+      :keys_dir => 'keys',
+      :hosts_file => '/etc/hosts',
+      :hosts => [],
+      :config => 'muggle.conf'
+    }
+
+    parse_opts
+    command = ARGV[0]
+    abort(@parser.to_s) unless VALID_COMMANDS.include?(command)
+    self.send(command)
   end
   
   def fetch
     pool = read_hostsfile
-    pool.dump_keyfiles
+    dump_keyfiles(pool)
   end
   
+  def fake
+    puts @options.inspect
+  end
+  
+  def apply
+    begin
+      configuration = SSHMuggle::Configuration.parse(File.read(@options[:config]))
+    rescue SSHMuggle::Configuration::ParseError => e
+      exit_with_help("Error parsing the configuration file. Error was: #{e.message}")
+    end
+    $stdout.puts "NOW pray to the gods... "
+    $stdout.puts "Going to deploy to #{configuration.servers.keys.join(",")}"
+    $stdout.print "Uploading..."
+    configuration.upload_keys
+    $stdout.puts "   [DONE]"
+    $stdout.puts "Go check if everything is fine!"
+  end
+
   def setup
     unless File.directory?('keys')
       $stdout.print "Creating keys directory..."
@@ -21,17 +49,12 @@ class MuggleClient
       $stdout.puts "  [DONE]"
     end
     
-    $stdout.print "Reading hostfile..."
     pool = read_hostsfile
-    $stdout.puts "  [DONE]"
     $stdout.print "Fetching keys from servers abd writing config to muggle.conf..."
     config = SSHMuggle::Configuration.build(pool)
     File.open('muggle.conf', 'w+') do |file|
       file.puts config
     end
-    $stdout.puts "  [DONE]"
-    $stdout.print "Writing keyfiles..."
-    pool.dump_keyfiles
     $stdout.puts "  [DONE]"
   end
 
@@ -40,30 +63,61 @@ class MuggleClient
   end
   
   private
+    def dump_keyfiles(pool)
+      $stdout.print "Writing keyfiles..."
+      pool.dump_keyfiles
+      $stdout.puts "  [DONE]"
+    end
+
+    def parse_opts
+      @parser = OptionParser.new do |o|
+        o.banner = "Usage: muggle [options] command"
+        o.separator("")
+        o.separator("Valid commands: #{VALID_COMMANDS.join(', ')}")
+        o.separator("")
+        o.separator("Input Options:")
+        o.on("--hosts host1,host2,host3", Array, "A comma separated list of hostnames to use (when using fetch or setup)") do |hosts|
+          @options[:hosts] = hosts
+        end
+        
+        o.on("--hostfile FILENAME", String, "The file to take the hosts from. Defaults to /etc/hosts (is ignored if the --hosts option is provided)") do |hostefile|
+          @options[:hosts_file] = hostefile
+        end
+
+        o.on("-h", "--help", "This help screen" ) do
+          puts o
+          exit
+        end
+      end
+      
+      @parser.parse!(ARGV)
+    end
+
     def read_hostsfile
-      SSHMuggle::ServerPool.from_hostfile(File.read('/etc/hosts'))
+      if @options[:hosts] == [] 
+        hosts_source = "hostfile #{@options[:hosts_file]}"
+        begin
+          hostfile = File.read(@options[:hosts_file])
+        rescue Errno::ENOENT
+          exit_with_help("File #{@options[:hosts_file]} not found or invalid")
+        end
+      else
+        hosts_source = "supplied list #{@options[:hosts].join(', ')}"
+        hostfile = @options[:hosts].join("    dummyname\n")
+        hostfile << "    dummyname\n"
+      end
+      
+      $stdout.print "Reading hosts from #{hosts_source}..."
+      pool = SSHMuggle::ServerPool.from_hostfile(hostfile)
+      $stdout.puts "  [DONE]"
+      exit_with_help("no Valid servers found") if pool.servers == []
+      pool
     end
 
     def exit_with_help(msg)
-      reason = "\n    #{msg}\n    Valid commands: #{VALID_COMMANDS.join(', ')}\n\n#{@opts}\n"
+      reason = "\n    #{msg}\n\n#{@parser}\n"
       abort(reason)
     end
 end
 
-opts = OptionParser.new do |o|
-  o.banner = "Usage: muggle [options]"
-
-  o.on("-h", "--help", "This help screen" ) do
-    puts o
-    exit
-  end
-end
-
-opts.parse!(ARGV)
-command = ARGV[0]
-if command.nil?
-  puts opts
-else
-  client = MuggleClient.new(opts)
-  client.send(command)
-end
+MuggleClient.new
