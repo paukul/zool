@@ -7,6 +7,26 @@ module SSHMuggle
         it "should raise an exception" do
           lambda { Configuration.parse('asdf') }.should raise_error(SSHMuggle::Configuration::ParseError)
         end
+        
+        context "pointing the reason why the configuration is invalid" do
+          it "should complain about missing groups that are referenced in roles" do
+            conf = <<-CONF
+              [role app]
+                servers = 12.3.4.5
+                keys = &snafu
+            CONF
+            lambda { Configuration.parse(conf) }.should raise_error(SSHMuggle::Configuration::ParseError, /missing referenced group 'snafu'/)
+          end
+          
+          it "should complain about missing keys" do
+            conf = <<-CONF
+              [role app]
+                servers = 12.3.4.5
+                keys = i_am_not_there
+            CONF
+            lambda { Configuration.parse(conf) }.should raise_error(SSHMuggle::Configuration::ParseError, /missing ssh key 'i_am_not_there'/)
+          end
+        end
       end
       
       context "a valid configuration" do
@@ -19,6 +39,11 @@ module SSHMuggle
           [group qa]
             members = david
           CONF
+          writer = KeyfileWriter.new
+          FileUtils.rm_r(writer.out_directory)
+          
+          writer.write 'davids key', 'david'
+          writer.write 'peters key', 'peter'
           configuration = Configuration.parse(conf)
           configuration.should be_a(Configuration)
         end
@@ -34,12 +59,12 @@ module SSHMuggle
           'log'     => 'ssh-dsa adfsdfafef00if0i23f== log@admins',
         }
         
-        @keyfile_stub_data.each do |key, value|
-          File.open("keys/#{key}.pub", 'w+') do |keyfile|
-            keyfile.write value
-          end
-        end
+        writer = KeyfileWriter.new
+        FileUtils.rm_r(writer.out_directory)
         
+        @keyfile_stub_data.each do |key, value|
+          writer.write value, key
+        end
 
         @conf_hash = {
           "role app" => {

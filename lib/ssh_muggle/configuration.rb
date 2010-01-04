@@ -83,15 +83,28 @@ module SSHMuggle
 
         @raw_config[raw_role]['keys'].each do |key|
           if key =~ /^&/
-            @groups[key[1..-1]].each do |gkey|
-              pool.keys << keys[gkey]
-            end
+            add_group_keys(key[1..-1], pool)
           else
-            pool.keys << keys[key]
+            pool.keys << fetch_key(key)
           end
         end
 
         pool
+      end
+      
+      def fetch_key(key)
+        return keys[key] unless keys[key].nil?
+        raise ParseError.new("missing ssh key '#{key}'")
+      end
+
+      def add_group_keys(group, pool)
+        begin
+          @groups[group].each do |key|
+            pool.keys << fetch_key(key)
+          end
+        rescue NoMethodError => e
+          raise ParseError.new("missing referenced group '#{group}'")
+        end
       end
   end
 end
