@@ -52,6 +52,10 @@ When /^I parse the config and run the upload_keys command$/ do
   @muggle.upload_keys
 end
 
+When /^I build the config from scratch$/ do
+  @generated_config = SSHMuggle::Configuration.build(@muggle)
+end
+
 When /^I run the fetch_keys command for the server "([^\"]*)"$/ do |hostname|
   @muggle = SSHMuggle::Server.new(hostname)
   @muggle.fetch_keys
@@ -102,6 +106,10 @@ Then /^the following keys should be on the servers$/ do |table|
     actual_keys_from_server += entries
   end
   table.diff!(actual_keys_from_server)
+end
+
+Then /^I should have the following config$/ do |string|
+  @generated_config.should == string
 end
 
 #########

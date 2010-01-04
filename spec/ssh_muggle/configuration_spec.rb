@@ -2,6 +2,35 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 module SSHMuggle
   describe Configuration do
+    before :all do
+      @keyfile_stub_data = {
+        'peter'   => 'ssh-dsa adfsdfafef00if0i23f== peter@localhost',
+        'paul'    => 'ssh-dsa adfsdfafef00if0i23f== paul@horst',
+        'system'  => 'ssh-dsa adfsdfafef00if0i23f== system@admins',
+        'log'     => 'ssh-dsa adfsdfafef00if0i23f== log@admins',
+      }
+    end
+
+    context "building a configuration file from a serverpool" do
+      before :each do
+        server1_keys = [@keyfile_stub_data['peter'], @keyfile_stub_data['paul']]
+        server1 = stub(:hostname => 'server1', :keys => server1_keys)
+        server2_keys = [@keyfile_stub_data['system'], @keyfile_stub_data['log']]
+        server2 = stub(:hostname => 'server2', :keys => server2_keys)
+        @pool = ServerPool.new([server1, server2])
+      end
+      
+      it "should write a server entry for every server in the pool and add it's keys" do
+        Configuration.build(@pool).should == <<-EXPECTED_CONF
+[server server1]
+  keys = peter, paul
+
+[server server2]
+  keys = system, log
+        EXPECTED_CONF
+      end
+    end
+    
     context ".parse" do
       context "an invalid configuration" do
         it "should raise an exception" do
@@ -51,14 +80,7 @@ module SSHMuggle
     end
     
     context "instanciating a configuration" do
-      before :all do
-        @keyfile_stub_data = {
-          'peter'   => 'ssh-dsa adfsdfafef00if0i23f== peter@localhost',
-          'paul'    => 'ssh-dsa adfsdfafef00if0i23f== paul@horst',
-          'system'  => 'ssh-dsa adfsdfafef00if0i23f== system@admins',
-          'log'     => 'ssh-dsa adfsdfafef00if0i23f== log@admins',
-        }
-        
+      before :all do        
         writer = KeyfileWriter.new
         FileUtils.rm_r(writer.out_directory)
         
@@ -77,9 +99,16 @@ module SSHMuggle
           },
           "group qa" => {
             'members' => ['peter', 'paul']
+          },
+          "server 10.52.6.1" => {
+            'keys' => ['system']
           }
         }
         @configuration = Configuration.new(@conf_hash)
+      end
+      
+      it "should create a server for every server section" do
+        @configuration.servers['10.52.6.1'].keys.should include(@keyfile_stub_data['system'])
       end
       
       it "should create a serverpool for every role" do

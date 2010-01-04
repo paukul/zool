@@ -11,7 +11,10 @@ module SSHMuggle
       pool = self.new
 
       hosts.each do |host|
-        pool << Server.new(host)
+        # puts host
+        server = Server.new(host)
+        # puts server.hostname
+        pool << server
       end
       pool
     end

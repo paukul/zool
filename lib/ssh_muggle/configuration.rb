@@ -11,6 +11,17 @@ module SSHMuggle
         raise ParseError.new(parser.failure_reason)
       end
     end
+    
+    def self.build(pool)
+      conf = ""
+      pool.servers.each do |server|
+        conf << "\n" unless conf == ""
+        conf << "[server #{server.hostname}]\n"
+        keynames = server.keys.map {|key| KeyfileWriter.keyname_for_key(key)}
+        conf << "  keys = #{keynames.join(', ')}\n"
+      end
+      conf
+    end
 
     def initialize(raw_config)
       @raw_config = raw_config
@@ -32,6 +43,7 @@ module SSHMuggle
         @groups = {}
 
         parse_groups
+        parse_servers
         parse_roles
       end
 
@@ -40,9 +52,22 @@ module SSHMuggle
           @groups[raw_group[/^group\s(.*)/, 1]] = @raw_config[raw_group]['members']
         end
       end
+      
+      def parse_servers
+        raw_servers.each do |raw_server|
+          server = server(raw_server[/^server\s(.*)/, 1])
+          @raw_config[raw_server]['keys'].each do |key|
+            server.keys << fetch_key(key)
+          end
+        end
+      end
+      
+      def raw_servers
+        raw(:server)
+      end
 
       def raw_groups
-        @raw_config.select {|k, v| k =~ /^group/}.map {|role_arrey| role_arrey[0]}
+        raw(:group)
       end
 
       def parse_roles
@@ -52,7 +77,11 @@ module SSHMuggle
       end
 
       def raw_roles
-        @raw_config.select {|k, v| k =~ /^role/}.map {|role_arrey| role_arrey[0]}
+        raw(:role)
+      end
+      
+      def raw(raw_type)
+        @raw_config.select {|k, v| k =~ /^#{raw_type}/}.map {|role_arrey| role_arrey[0]}
       end
 
       def server(hostname)

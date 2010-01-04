@@ -6,10 +6,15 @@ TEST_TMP_PATH = File.expand_path(File.dirname(__FILE__) + "/../tmp")
 class SSHMuggle::Server
   def initialize(host, user = 'root')
     @hostname = 'localhost'
+    @fake_hostname = host
     @user = `whoami`.chomp
     temp_server_path = TEST_TMP_PATH + "/servers/#{host}"
     @keyfile_location = temp_server_path + '/authorized_keys'
     FileUtils.mkdir_p temp_server_path unless File.directory? temp_server_path
+  end
+  
+  def hostname
+    @fake_hostname
   end
 end
 
