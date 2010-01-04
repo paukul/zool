@@ -26,7 +26,6 @@ the command-line client currently supports 2 commands:
   this task creates the keys directory, fetches the keys and naively creates a simple version of a muggle.conf. That will experience some overhaul for sure because it is only capable to create server directives for every server and isn't smart enough to group keys.
 * apply<br>
   reads the muggle.conf and distributes the keys to the servers specified in the configuration file. <br>
-  *This command isn't implemented in the client yet but in the libraries -- will come soon!*
 
 The muggle.conf
 ---------------
@@ -71,6 +70,21 @@ See how it looks like if that happens:
     Uploading...   [FAIL]
     Could not connect to a Server after updating the authorized_keys file. Tried to roll back!
     Error after uploading the keyfile to 13.11.2.200
+
+Known issues
+------------
+
+__Bugs / Issues__
+
+* numbering of "similar" keys is only done when generating the key files. when writing the config files it uses the unnumbered version all the time
+* tests on the fallback mechanism are not present
+
+__Feature Todos__
+
+* allow customizing the user for server/role directives
+* if keys are in subfolders, the subfolders could automatically act as usable groups, with the folder name as reference
+
+
 
 Running the tests
 =================
