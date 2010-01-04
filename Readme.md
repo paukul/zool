@@ -1,11 +1,7 @@
 SSH Muggle
 =================
-ok, i'll rethink the name, but anyway, here is what it is:
-
 ssh_muggle is a library to manage authorized_keys files on a set of n servers.
 It comes with a command-line client named muggle which gives you access to the common tasks.
-
-When muggle creates a authorized_keys file on a server, it always creates a backup of the existing one (it uses `authorized_keys_timestamp` as the backups filename).
 
 The command-line client
 -----------------------
@@ -42,6 +38,28 @@ The muggle.conf describes which keys should be deployed to which servers. It sup
 The members are specified as the name of the keyfile containing the key, without the succeeding .pub extension.
 A _group_ groups several keys, a _role_ groups several _servers_. A server, well, is a single server. (*Note*: you can have servers in several groups and even in an additional server directive at once)
 Roles and servers can have multiple _keys_. The keys can be supplied like in the _group_ directive or if you want to reference to a groups keys, by prepending a _&_ (if you would want to reference the group _devs_ you would use _&devs_).
+
+Security?
+----------
+When muggle creates a authorized_keys file on a server, it always creates a backup of the existing one (it uses `authorized_keys_timestamp` as the backups filename).
+It also opens a backup connection to the server before uploading the keyfiles and tries to open another one after uploading them. If it fails to open another conncetion it uses the backup connection to restore the original keyfile.
+See how it looks like if that happens:
+
+*In the logfile*
+
+    INFO -- : Fetching key from 13.11.2.200
+    INFO -- : Trying to connect to 13.11.2.200 to see if I still have access
+    WARN -- : !!!!!! Could not login to server after upload operation! Rolling back !!!!!!
+    INFO -- : Trying to connect to 13.11.2.200 to see if I still have access
+    INFO -- : Backup channel connection succeeded. Assuming everything went fine!
+
+*At the command-line*
+    
+    NOW pray to the gods... 
+    Going to deploy to 13.11.2.200
+    Uploading...   [FAIL]
+    Could not connect to a Server after updating the authorized_keys file. Tried to roll back!
+    Error after uploading the keyfile to 13.11.2.200
 
 Running the tests
 =================
