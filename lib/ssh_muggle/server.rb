@@ -53,15 +53,15 @@ module SSHMuggle
         downloaded_file = StringIO.new
         begin
           Timeout::timeout(2) do
-            log "Fetching key from #{@hostname}"
-            Net::SCP.download!(@hostname, @user, @keyfile_location, downloaded_file, :timeout => 10)
+            logger.info "Fetching key from #{@hostname}"
+            Net::SCP.download!(@hostname, @user, @keyfile_location, downloaded_file)
           end
         rescue Net::SCP::Error
-          log "Warning! Empty keyfile" # logging? later... :P
+          logger.warn "Warning! Empty keyfile" # logging? later... :P
         rescue Net::SSH::AuthenticationFailed
-          log "No access to Server #{@hostname}"
+          logger.warn "No access to Server #{@hostname}"
         rescue Errno::ETIMEDOUT, Timeout::Error
-          log "Access to server #{@hostname} timed out"
+          logger.warn "Access to server #{@hostname} timed out"
         end
         downloaded_file.string
       end
@@ -70,8 +70,8 @@ module SSHMuggle
         '~/.ssh/authorized_keys'
       end
       
-      def log(msg)
-        puts msg unless defined?(Spec)
+      def logger
+        DEFAULT_LOGGER
       end
-    end
+  end
 end

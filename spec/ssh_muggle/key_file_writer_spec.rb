@@ -26,6 +26,12 @@ module SSHMuggle
             it_should_generate_keyfile 'bob_schneider.pub'
             it_should_generate_keyfile 'pascal_friederich.pub'
           end
+          
+          it "should not fail if keyfile name is not parsable" do
+            key_without_host = "ssh-dsa asdfkasdlfjasdlfkjsdf="
+            @writer.write key_without_host
+            it_should_generate_keyfile '1__not_parsable.pub'
+          end
 
           it "should write the ssh key in the appropriate keyfile" do
             File.read('keys/bob_schneider.pub').chomp.should == key_fixtures[:bob]

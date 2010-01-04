@@ -19,9 +19,12 @@ module SSHMuggle
       key_name = outname || begin
         temp_name = key[/^\S*\s\S*\s([^@]+)\S.*$/, 1]
         if temp_name.nil?
-          debugger
+          logger.warn "key not parsable"
+          '1__not_parsable'
+        else
+          temp_name.gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
         end
-        temp_name.gsub(/[^A-Z|^a-z|^0-9]/, '_').downcase
+        
       end
       key_count = Dir["#{out_directory}/#{key_name}*.pub"].size
 
@@ -31,6 +34,10 @@ module SSHMuggle
       File.open(key_path, 'w+') do |file|
         file.puts key
       end
+    end
+    
+    def logger
+      DEFAULT_LOGGER
     end
   end
 end
