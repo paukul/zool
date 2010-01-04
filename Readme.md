@@ -3,6 +3,17 @@ SSH Muggle
 ssh_muggle is a library to manage authorized_keys files on a set of n servers.
 It comes with a command-line client named muggle which gives you access to the common tasks.
 
+Current State
+-------------
+
+At the current state of development, you need bundler to run the muggle client.
+The library will get released as a gem somewhere, somewhen, but until then follow the instructions to get it running:
+
+* `sudo gem install bundler` (if not done already)
+* `gem bundle`
+
+that should be it... You should then be able to use the `muggle` client in `bin/muggle`
+
 The command-line client
 -----------------------
 
