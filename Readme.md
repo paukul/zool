@@ -17,7 +17,7 @@ that should be it... You should then be able to use the `muggle` client in `bin/
 The command-line client
 -----------------------
 
-the command-line client currently supports 2 commands:
+the command-line client currently supports 3 commands:
 
 * fetch<br>
   fetches the authorized_keys files from every known host in the /etc/hosts file (that is configurable later, sure ;)), splits them up, removes duplicates and saves them to a .pub file in the keys (configurable... later...) directory.
@@ -77,10 +77,11 @@ Known issues
 __Bugs / Issues__
 
 * numbering of "similar" keys is only done when generating the key files. when writing the config files it uses the unnumbered version all the time
-* tests on the fallback mechanism are not present
+* tests on the fallback mechanism are not present 
 
 __Feature Todos__
 
+* generating the config from a serverpool / hostfile is pretty dump at the moment. is doesn't use the groups and roles directives, instead stupidly adds server directives with the appropriate keys. That could be made smarter...
 * allow customizing the user for server/role directives
 * if keys are in subfolders, the subfolders could automatically act as usable groups, with the folder name as reference
 
