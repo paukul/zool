@@ -6,3 +6,4 @@ vendor/gems/*
 !vendor/gems/cache/
 *.log
 keys
+muggle.conf

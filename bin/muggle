@@ -3,15 +3,36 @@ require 'lib/ssh_muggle'
 require 'optparse'
 
 class MuggleClient
-  VALID_COMMANDS = %w(fetch)
+  VALID_COMMANDS = %w(fetch setup)
   
   def initialize(opts)
     @opts = opts
   end
   
   def fetch
-    pool = SSHMuggle::ServerPool.from_hostfile(File.read('/etc/hosts'))
+    pool = read_hostsfile
     pool.dump_keyfiles
+  end
+  
+  def setup
+    unless File.directory?('keys')
+      $stdout.print "Creating keys directory..."
+      FileUtils.mkdir('keys') 
+      $stdout.puts "  [DONE]"
+    end
+    
+    $stdout.print "Reading hostfile..."
+    pool = read_hostsfile
+    $stdout.puts "  [DONE]"
+    $stdout.print "Fetching keys from servers abd writing config to muggle.conf..."
+    config = SSHMuggle::Configuration.build(pool)
+    File.open('muggle.conf', 'w+') do |file|
+      file.puts config
+    end
+    $stdout.puts "  [DONE]"
+    $stdout.print "Writing keyfiles..."
+    pool.dump_keyfiles
+    $stdout.puts "  [DONE]"
   end
 
   def method_missing(method, *args)
@@ -19,6 +40,10 @@ class MuggleClient
   end
   
   private
+    def read_hostsfile
+      SSHMuggle::ServerPool.from_hostfile(File.read('/etc/hosts'))
+    end
+
     def exit_with_help(msg)
       reason = "\n    #{msg}\n    Valid commands: #{VALID_COMMANDS.join(', ')}\n\n#{@opts}\n"
       abort(reason)
@@ -35,6 +60,10 @@ opts = OptionParser.new do |o|
 end
 
 opts.parse!(ARGV)
-client = MuggleClient.new(opts)
-
-client.send(ARGV[0])
+command = ARGV[0]
+if command.nil?
+  puts opts
+else
+  client = MuggleClient.new(opts)
+  client.send(command)
+end

@@ -15,6 +15,7 @@ module SSHMuggle
     def self.build(pool)
       conf = ""
       pool.servers.each do |server|
+        next if server.keys == []
         conf << "\n" unless conf == ""
         conf << "[server #{server.hostname}]\n"
         keynames = server.keys.map {|key| KeyfileWriter.keyname_for_key(key)}
