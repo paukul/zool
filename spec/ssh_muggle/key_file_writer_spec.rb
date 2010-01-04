@@ -15,7 +15,7 @@ module SSHMuggle
               key_fixtures[:pascal_private],
               key_fixtures[:pascal_laptop],
               key_fixtures[:bob],
-              key_fixtures[:upcase]
+              key_fixtures[:upcase],
             ]
             sorted_keys.each do |key|
               @writer.write key
@@ -31,6 +31,12 @@ module SSHMuggle
             key_without_host = "ssh-dsa asdfkasdlfjasdlfkjsdf="
             @writer.write key_without_host
             it_should_generate_keyfile '1__not_parsable.pub'
+          end
+          
+          it "should not fail if the name in the keyfile is unusual" do
+            key_with_only_username = "ssh-dsa asdfasdfasdfkjkj= Peter"
+            @writer.write key_with_only_username
+            it_should_generate_keyfile "peter.pub"
           end
 
           it "should write the ssh key in the appropriate keyfile" do

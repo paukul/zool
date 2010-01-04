@@ -6,7 +6,7 @@ module SSHMuggle
     attr_accessor :out_directory
 
     def self.keyname_for_key(key)
-      temp_name = key[/^\S*\s\S*\s([^@]+)\S.*$/, 1]
+      temp_name = key[/^\S*\s\S*\s([^@]+)\S*$/, 1]
       if temp_name.nil?
         logger.warn "key not parsable"
         '1__not_parsable'
