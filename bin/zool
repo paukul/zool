@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-require 'lib/zool'
+require 'rubygems'
+require 'zool'
 require 'optparse'
 
 class ZoolClient

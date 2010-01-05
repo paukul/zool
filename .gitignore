@@ -7,3 +7,5 @@ vendor/gems/*
 *.log
 keys
 muggle.conf
+pkg
+Zool.gemspec

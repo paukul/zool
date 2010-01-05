@@ -17,7 +17,7 @@ gem 'ruby-debug',       '0.10.3'
 gem 'ruby-debug-base',  '0.10.3'
 gem 'term-ansicolor',   '1.0.4'
 
-
+gem "jeweler"
 
 source 'http://gemcutter.org'
 bin_path 'bundler_bin'
