@@ -2,8 +2,7 @@
 features/tmp
 tester.rb
 bundler_bin/*
-vendor/gems/*
-!vendor/gems/cache/
+vendor
 *.log
 keys
 muggle.conf
