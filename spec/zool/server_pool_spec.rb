@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-module SSHMuggle
+module Zool
   describe ServerPool do
     context "parsing from a hosts file" do
       context "when given a String" do

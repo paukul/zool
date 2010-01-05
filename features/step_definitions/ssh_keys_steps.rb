@@ -7,7 +7,7 @@ Debugger.start
 #########
 
 Given /^the local keyfiles$/ do |table|
-  writer = SSHMuggle::KeyfileWriter.new
+  writer = Zool::KeyfileWriter.new
   table.hashes.each {|keyfile| writer.write(keyfile['key'], keyfile['name'])}
 end
 
@@ -17,7 +17,7 @@ end
 
 Given /^the following hosts$/ do |string|
   hosts = StringIO.new(string)
-  @muggle = SSHMuggle::ServerPool.from_hostfile hosts
+  @zool = Zool::ServerPool.from_hostfile hosts
 end
 
 Given /^the following keys are on the servers$/ do |table|
@@ -32,7 +32,7 @@ end
 
 Given /^the following keys have been fetched$/ do |table|
   Given 'the server "localhost"'
-  @muggle.keys = table.rows.flatten
+  @zool.keys = table.rows.flatten
 end
 
 Given /^the server "([^\"]*)" without a key file$/ do |servername|
@@ -40,7 +40,7 @@ Given /^the server "([^\"]*)" without a key file$/ do |servername|
 end
 
 Given /^the server "([^\"]*)"$/ do |servername|
-  @muggle = SSHMuggle::Server.new(servername)
+  @zool = Zool::Server.new(servername)
 end
 
 #########
@@ -48,31 +48,31 @@ end
 #########
 
 When /^I parse the config and run the upload_keys command$/ do
-  @muggle = SSHMuggle::Configuration.parse(@config)
-  @muggle.upload_keys
+  @zool = Zool::Configuration.parse(@config)
+  @zool.upload_keys
 end
 
 When /^I build the config from scratch$/ do
-  @generated_config = SSHMuggle::Configuration.build(@muggle)
+  @generated_config = Zool::Configuration.build(@zool)
 end
 
 When /^I run the fetch_keys command for the server "([^\"]*)"$/ do |hostname|
-  @muggle = SSHMuggle::Server.new(hostname)
-  @muggle.fetch_keys
+  @zool = Zool::Server.new(hostname)
+  @zool.fetch_keys
 end
 
 When /^I add the key "([^\"]*)"$/ do |key|
-  @muggle.keys << key
+  @zool.keys << key
 end
 
 When /^I run the (.*) command$/ do |command|
-  @muggle.send(command)
+  @zool.send(command)
 end
 
 When /^I upload the keys to the server "([^\"]*)"$/ do |servername, table|
-  @muggle = SSHMuggle::Server.new(servername)
-  @muggle.keys = table.rows
-  @muggle.upload_keys
+  @zool = Zool::Server.new(servername)
+  @zool.keys = table.rows
+  @zool.upload_keys
 end
 
 #########
@@ -80,7 +80,7 @@ end
 #########
 
 Then /^It should fetch the following keys$/ do |table|
-  actual_keys = [['key']] | @muggle.keys.map {|key| [key] }
+  actual_keys = [['key']] | @zool.keys.map {|key| [key] }
   table.diff!(actual_keys)
 end
 

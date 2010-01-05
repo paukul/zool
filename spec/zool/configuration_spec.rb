@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-module SSHMuggle
+module Zool
   describe Configuration do
     before :all do
       @keyfile_stub_data = {
@@ -34,7 +34,7 @@ module SSHMuggle
     context ".parse" do
       context "an invalid configuration" do
         it "should raise an exception" do
-          lambda { Configuration.parse('asdf') }.should raise_error(SSHMuggle::Configuration::ParseError)
+          lambda { Configuration.parse('asdf') }.should raise_error(Zool::Configuration::ParseError)
         end
         
         context "pointing the reason why the configuration is invalid" do
@@ -44,7 +44,7 @@ module SSHMuggle
                 servers = 12.3.4.5
                 keys = &snafu
             CONF
-            lambda { Configuration.parse(conf) }.should raise_error(SSHMuggle::Configuration::ParseError, /missing referenced group 'snafu'/)
+            lambda { Configuration.parse(conf) }.should raise_error(Zool::Configuration::ParseError, /missing referenced group 'snafu'/)
           end
           
           it "should complain about missing keys" do
@@ -53,7 +53,7 @@ module SSHMuggle
                 servers = 12.3.4.5
                 keys = i_am_not_there
             CONF
-            lambda { Configuration.parse(conf) }.should raise_error(SSHMuggle::Configuration::ParseError, /missing ssh key 'i_am_not_there'/)
+            lambda { Configuration.parse(conf) }.should raise_error(Zool::Configuration::ParseError, /missing ssh key 'i_am_not_there'/)
           end
         end
       end

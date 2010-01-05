@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-module SSHMuggle
+module Zool
   describe KeyfileWriter do
     context "dumping keys to files" do
       before :each do

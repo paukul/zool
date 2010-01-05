@@ -1,7 +1,7 @@
 require 'net/sftp'
 require 'net/scp'
 
-module SSHMuggle
+module Zool
   class Server
     class ConnectionVerificationExecption < Exception; end
     attr_reader :hostname
@@ -77,7 +77,7 @@ module SSHMuggle
    end
 
    def to_s
-    "<SSHMuggle::Server #{hostname}>"
+    "<Zool::Server #{hostname}>"
    end
 
     private

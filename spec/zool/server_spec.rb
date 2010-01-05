@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'ruby-debug'
 Debugger.start
 
-module SSHMuggle
+module Zool
   describe Server do
     before :each do
       @server = Server.new("somehost")

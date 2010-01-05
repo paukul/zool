@@ -1,7 +1,7 @@
 require 'ruby-debug'
 Debugger.start
 
-module SSHMuggle
+module Zool
   class KeyfileWriter
     attr_accessor :out_directory
 

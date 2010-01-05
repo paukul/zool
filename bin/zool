@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
-require 'lib/ssh_muggle'
+require 'lib/zool'
 require 'optparse'
 
-class MuggleClient
+class ZoolClient
   VALID_COMMANDS = %w(fetch setup fake apply)
   
   def initialize
@@ -10,7 +10,7 @@ class MuggleClient
       :keys_dir => 'keys',
       :hosts_file => '/etc/hosts',
       :hosts => [],
-      :config => 'muggle.conf'
+      :config => 'zool.conf'
     }
 
     parse_opts
@@ -30,8 +30,8 @@ class MuggleClient
   
   def apply
     begin
-      configuration = SSHMuggle::Configuration.parse(File.read(@options[:config]))
-    rescue SSHMuggle::Configuration::ParseError => e
+      configuration = Zool::Configuration.parse(File.read(@options[:config]))
+    rescue Zool::Configuration::ParseError => e
       exit_with_help("Error parsing the configuration file. Error was: #{e.message}")
     end
     $stdout.puts "NOW pray to the gods... "
@@ -39,7 +39,7 @@ class MuggleClient
     $stdout.print "Uploading..."
     begin
       configuration.upload_keys
-    rescue SSHMuggle::Server::ConnectionVerificationExecption => e
+    rescue Zool::Server::ConnectionVerificationExecption => e
       $stdout.puts "   [FAIL]"
       $stdout.puts "Could not connect to a Server after updating the authorized_keys file. Tried to roll back!"
       $stdout.puts e.message
@@ -57,9 +57,9 @@ class MuggleClient
     end
     
     pool = read_hostsfile
-    $stdout.print "Fetching keys from servers abd writing config to muggle.conf..."
-    config = SSHMuggle::Configuration.build(pool)
-    File.open('muggle.conf', 'w+') do |file|
+    $stdout.print "Fetching keys from servers abd writing config to zool.conf..."
+    config = Zool::Configuration.build(pool)
+    File.open('zool.conf', 'w+') do |file|
       file.puts config
     end
     $stdout.puts "  [DONE]"
@@ -79,7 +79,7 @@ class MuggleClient
 
     def parse_opts
       @parser = OptionParser.new do |o|
-        o.banner = "Usage: muggle [options] command"
+        o.banner = "Usage: zool [options] command"
         o.separator("")
         o.separator("Valid commands: #{VALID_COMMANDS.join(', ')}")
         o.separator("")
@@ -116,7 +116,7 @@ class MuggleClient
       end
       
       $stdout.print "Reading hosts from #{hosts_source}..."
-      pool = SSHMuggle::ServerPool.from_hostfile(hostfile)
+      pool = Zool::ServerPool.from_hostfile(hostfile)
       $stdout.puts "  [DONE]"
       exit_with_help("no Valid servers found") if pool.servers == []
       pool
@@ -128,4 +128,4 @@ class MuggleClient
     end
 end
 
-MuggleClient.new
+ZoolClient.new

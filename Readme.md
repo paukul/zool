@@ -1,18 +1,18 @@
-SSH Muggle
+Zool
 =================
-ssh_muggle is a library to manage authorized_keys files on a set of n servers.
-It comes with a command-line client named muggle which gives you access to the common tasks.
+zool is a library to manage authorized_keys files on a set of n servers.
+It comes with a command-line client named zool which gives you access to the common tasks.
 
 Current State
 -------------
 
-At the current state of development, you need bundler to run the muggle client.
+At the current state of development, you need bundler to run the zool client.
 The library will get released as a gem somewhere, somewhen, but until then follow the instructions to get it running:
 
 * `sudo gem install bundler` (if not done already)
 * `gem bundle`
 
-that should be it... You should then be able to use the `muggle` client in `bin/muggle`
+that should be it... You should then be able to use the `zool` client in `bin/zool`
 
 The command-line client
 -----------------------
@@ -20,17 +20,17 @@ The command-line client
 the command-line client currently supports 3 commands:
 
 * fetch<br>
-  fetches the authorized_keys files from every known host in the /etc/hosts file (that is configurable later, sure ;)), splits them up, removes duplicates and saves them to a .pub file in the keys (configurable... later...) directory.
+  fetches the authorized_keys files from a file (defaults to /etc/hosts) or a list of hosts (see zool -h for more info), splits them up, removes duplicates and saves them to a .pub file in the keys (will be configurable... later...) directory.
   It tries to generate the name of the keyfile by parsing the key for a someuser@somehost value at the end of the key. It only uses the someuser value to generate the keyfile name. That may become configurable later
 * setup<br>
-  this task creates the keys directory, fetches the keys and naively creates a simple version of a muggle.conf. That will experience some overhaul for sure because it is only capable to create server directives for every server and isn't smart enough to group keys.
+  this task creates the keys directory, fetches the keys and naively creates a simple version of a zool.conf. That will experience some overhaul for sure because it is only capable to create server directives for every server and isn't smart enough to group keys.
 * apply<br>
-  reads the muggle.conf and distributes the keys to the servers specified in the configuration file. <br>
+  reads the zool.conf and distributes the keys to the servers specified in the configuration file. <br>
 
-The muggle.conf
+The zool.conf
 ---------------
 
-The muggle.conf describes which keys should be deployed to which servers. It supports group, role and server directives.
+The zool.conf describes which keys should be deployed to which servers. It supports group, role and server directives.
 
     [group devs]
       members = peter, paul, danny
@@ -51,7 +51,7 @@ Roles and servers can have multiple _keys_. The keys can be supplied like in the
 
 Security?
 ----------
-When muggle creates a authorized_keys file on a server, it always creates a backup of the existing one (it uses `authorized_keys_timestamp` as the backups filename).
+When zool creates a authorized_keys file on a server, it always creates a backup of the existing one (it uses `authorized_keys_timestamp` as the backups filename).
 It also opens a backup connection to the server before uploading the keyfiles and tries to open another one after uploading them. If it fails to open another conncetion it uses the backup connection to restore the original keyfile.
 See how it looks like if that happens:
 

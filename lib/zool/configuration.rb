@@ -1,4 +1,4 @@
-module SSHMuggle
+module Zool
   class Configuration
     class ParseError < Exception; end
     attr_reader :servers, :roles, :groups

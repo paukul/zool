@@ -1,4 +1,4 @@
-module SSHMuggle
+module Zool
   class ServerPool < Array
     IP_FORMAT = /\A(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)(?:\.(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)){3}\z/
 
@@ -48,7 +48,7 @@ module SSHMuggle
     end
     
     def inspect
-      "#<SSHMuggle::ServerPool @servers=[#{servers.join(', ')}]>"
+      "#<Zool::ServerPool @servers=[#{servers.join(', ')}]>"
     end
 
     private

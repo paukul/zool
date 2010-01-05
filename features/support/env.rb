@@ -1,9 +1,9 @@
 $:.unshift(File.expand_path(File.dirname(__FILE__) + '/../../lib'))
 require 'spec'
-require 'ssh_muggle'
+require 'zool'
 TEST_TMP_PATH = File.expand_path(File.dirname(__FILE__) + "/../tmp")
 
-class SSHMuggle::Server
+class Zool::Server
   def initialize(host, user = 'root')
     @hostname = 'localhost'
     @fake_hostname = host
@@ -18,7 +18,7 @@ class SSHMuggle::Server
   end
 end
 
-class SSHMuggle::KeyfileWriter
+class Zool::KeyfileWriter
   def initialize(out_directory = 'keys')
     @out_directory = TEST_TMP_PATH + "/#{out_directory}"
     FileUtils.mkdir_p @out_directory unless File.directory? @out_directory
@@ -27,7 +27,7 @@ end
 
 Before do
   FileUtils.rm_r TEST_TMP_PATH if File.directory? TEST_TMP_PATH
-  @muggle = nil
+  @zool = nil
   @servers = nil
 end
 
