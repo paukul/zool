@@ -25,7 +25,7 @@ begin
     s.email = "paukul@gmail.com"
     s.homepage = "http://github.com/paukul/zool"
     s.authors = ["Pascal Friederich"]
-    s.version = ["0.1.1"]
+    s.version = ["0.1.2"]
     s.files.exclude 'vendor', 'spec', 'features', '.gitignore', 'Gemfile'
     s.test_files.include 'features/**/*'
     s.test_files.exclude 'features/tmp'

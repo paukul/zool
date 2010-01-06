@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'lib/zool'
+require 'zool'
 require 'optparse'
 require 'highline'
 
