@@ -8,14 +8,14 @@ The command-line client
 
 the command-line client currently supports 3 commands:
 
-* fetch<br>
+* __fetch__<br>
   fetches the authorized_keys files from a file (defaults to /etc/hosts) or a list of hosts (see zool -h for more info), splits them up, removes duplicates and saves them to a .pub file in the keys (will be configurable... later...) directory.
   It tries to generate the name of the keyfile by parsing the key for a someuser@somehost value at the end of the key. It only uses the someuser value to generate the keyfile name. That may become configurable later
   You can specify a user / password for the fetch and setup tasks. See zool -h for details.
-* setup<br>
+* __setup__<br>
   this task creates the keys directory, fetches the keys and naively creates a simple version of a zool.conf. That will experience some overhaul for sure because it is only capable to create server directives for every server and isn't smart enough to group keys.
   You can specify a user / password for the fetch and setup tasks. See zool -h for details.
-* apply<br>
+* __apply__<br>
   reads the zool.conf and distributes the keys to the servers specified in the configuration file. <br>
 
 The zool.conf
@@ -40,11 +40,12 @@ The zool.conf describes which keys should be deployed to which servers. It suppo
       user = adminuser
 
 The members are specified as the name of the keyfile containing the key, without the succeeding .pub extension.
-A _group_ groups several keys, a _role_ groups several _servers_. A server, well, is a single server. (*Note*: you can have servers in several groups and even in an additional server directive at once)
+A _group_ groups several keys, a _role_ groups several _servers_. A server, well, is a single server. (__Note__: you can have servers in several groups and even in an additional server directive at once)
 Roles and servers can have multiple _keys_. The keys can be supplied like in the _group_ directive or if you want to reference to a groups keys, by prepending a _&_ (if you would want to reference the group _devs_ you would use _&devs_).
-You can specify the user/password to use to connect to servers / roles.
+You can optionally specify the user/password to use to connect to servers/roles. If those values aren't configured, it defaults to root for the user and an empty password/tries to authenticate with the current users ssh key.
 
-*NOTE* Currently the first appearance of a server in the key file sets its user/password. So it is not possible to have multiple key configurations with a different user for a single server. That might change soon!
+__NOTE__
+Currently the first appearance of a server in the key file sets its user/password. So it is not possible to have multiple key configurations with a different user for a single server. That might change soon!
 
 Security?
 ----------
@@ -81,12 +82,16 @@ __Feature Todos__
 * generating the config from a serverpool / hostfile is pretty dump at the moment. is doesn't use the groups and roles directives, instead stupidly adds server directives with the appropriate keys. That could be made smarter...
 * if keys are in subfolders, the subfolders could automatically act as usable groups, with the folder name as reference
 
-__DONE__
+Developing
+==========
 
-* allow customizing the user for server/role directives
+Bundler
+-------
+
+To get a working development/testing setup you can use bundler to fetch all the dependencies. Just `gem install bundler` and `gem bundle` in the checkout directory afterwards. Be sure to use the executables (rake, cucumber, ...) from the bundler_bin directory instead your regular versions.
 
 Running the tests
-=================
+-----------------
 
 To run the cucumber features you need to have an ssh server running on your machine and your own public key in your authorized_keys file.
 The tests use your authorized_keys file only to login to _localhost_ and fake authorized_keys and key files for testing.
