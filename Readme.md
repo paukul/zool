@@ -3,6 +3,15 @@ Zool
 zool (which is named after Zuul, "The Gatekeeper", from the movie [Ghostbusters](http://en.wikipedia.org/wiki/Ghostbusters)) is a gem to manage authorized_keys files on a set of n servers.
 It comes with a command-line client named zool which gives you access to the common tasks.
 
+Installation
+------------
+
+* install [ruby](http://www.ruby-lang.org)
+* install [rubygems](http://docs.rubygems.org/read/chapter/3)
+* gem install [zool](http://github.com/paukul/zool)
+
+that should be it!
+
 The command-line client
 -----------------------
 
