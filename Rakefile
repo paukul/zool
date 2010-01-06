@@ -25,16 +25,13 @@ begin
     s.email = "paukul@gmail.com"
     s.homepage = "http://github.com/paukul/zool"
     s.authors = ["Pascal Friederich"]
-    s.version = ["0.1.0"]
+    s.version = ["0.1.1"]
     s.files.exclude 'vendor', 'spec', 'features', '.gitignore', 'Gemfile'
     s.test_files.include 'features/**/*'
     s.test_files.exclude 'features/tmp'
     s.add_dependency 'net-scp',   '>=1.0.2'
     s.add_dependency 'net-ssh',   '>=2.0.17'
-    s.add_dependency 'net-scp',   '>=1.0.2'
-    s.add_dependency 'net-ssh',   '>=2.0.17'
     s.add_dependency 'treetop',   '>=1.4.3'
-    s.add_dependency 'polyglot',  '>=0.2.9'
     s.add_dependency 'highline',  '>=1.5.1'
 
     s.add_development_dependency 'builder',          '>=2.1.2'
