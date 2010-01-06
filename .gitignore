@@ -5,6 +5,6 @@ bundler_bin/*
 vendor
 *.log
 keys
-muggle.conf
+zool.conf
 pkg
-Zool.gemspec
+zool.gemspec

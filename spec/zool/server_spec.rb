@@ -7,11 +7,21 @@ module Zool
     before :each do
       @server = Server.new("somehost")
     end
-
+    
+    it "should have a getter for the user attribute" do
+      @server.user.should == @server.send(:instance_variable_get, :@options)[:user]
+    end
+    
     context "fetching a servers keys" do
+      it "should use a password if provided" do
+        server = Server.new('somehost', :user => 'root', :password => 'a password')
+        Net::SCP.should_receive(:download!).with(anything, anything, anything, anything, :ssh => {:password => 'a password'})
+        server.keys
+      end
+
       it "should use the default server location" do
         Server.new('somehost').keyfile_location.should          == '~/.ssh/authorized_keys'
-        Server.new('somehost', 'peter').keyfile_location.should == '~/.ssh/authorized_keys'
+        Server.new('somehost', :user => 'peter').keyfile_location.should == '~/.ssh/authorized_keys'
       end
       
       context "with a custom keyfile location set" do
@@ -19,7 +29,7 @@ module Zool
           @server = Server.new('somehost')
           custom_keyfile_location = '/some/custom/path'
           @server.keyfile_location = custom_keyfile_location
-          Net::SCP.should_receive(:download!).with(anything, anything, custom_keyfile_location, anything)
+          Net::SCP.should_receive(:download!).with(anything, anything, custom_keyfile_location, anything, anything)
 
           @server.fetch_keys          
         end
@@ -34,7 +44,7 @@ module Zool
 
       it "should load the authorized_keys file from the server" do
         @server = Server.new('somehost')
-        Net::SCP.should_receive(:download!).with(anything, anything, @server.keyfile_location, anything)
+        Net::SCP.should_receive(:download!).with(anything, anything, @server.keyfile_location, anything, anything)
 
         @server.fetch_keys
       end
@@ -115,7 +125,7 @@ module Zool
       end
 
       context "by adding keys to the existing keys" do
-        it "sould fetch the servers current keys if not done before" do
+        it "should fetch the servers current keys if not done before" do
           @server.should_receive(:load_remote_file)
           @server.keys << "asdf"
         end        
@@ -144,7 +154,7 @@ module Zool
           @server.should_receive(:load_remote_file).and_return(@backup_keys)
           Net::SSH.stub!(:start).and_return(stub('ssh channel stub', :null_object => true))
           
-          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@backup_keys), /authorized_keys_\d+$/)
+          Net::SCP.should_receive(:upload!).with('somehost', 'root', stringbuffer_with(@backup_keys), /authorized_keys_\d+$/, anything)
           @server.upload_keys
         end
 

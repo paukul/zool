@@ -55,8 +55,8 @@ module Zool
       end
       
       def parse_servers
-        raw_servers.each do |raw_server|
-          server = server(raw_server[/^server\s(.*)/, 1])
+        raw_servers.each do |raw_server|          
+          server    = server(raw_server[/^server\s(.*)/, 1], @raw_config[raw_server])
           @raw_config[raw_server]['keys'].each do |key|
             server.keys << fetch_key(key)
           end
@@ -85,12 +85,23 @@ module Zool
         @raw_config.select {|k, v| k =~ /^#{raw_type}/}.map {|role_arrey| role_arrey[0]}
       end
 
-      def server(hostname)
+      def server(hostname, raw_object)
         return @servers[hostname] if @servers[hostname]
-        new_server = Server.new(hostname)
+        options = server_options_from_configuration(raw_object)
+
+        new_server = Server.new(hostname, options)
         new_server.keys = []
         @servers[hostname] = new_server
         new_server
+      end
+      
+      def server_options_from_configuration(raw_object)
+        user      = raw_object['user']
+        password  = raw_object['password']
+        options   = {}
+        options.update({:user => user}) if user
+        options.update({:password => password}) if password
+        options
       end
 
       def read_keys
@@ -108,7 +119,7 @@ module Zool
         pool = ServerPool.new()
 
         @raw_config[raw_role]['servers'].each do |hostname|
-          pool << server(hostname)
+          pool << server(hostname, @raw_config[raw_role])
         end
 
         @raw_config[raw_role]['keys'].each do |key|

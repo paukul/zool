@@ -17,7 +17,7 @@ end
 
 Given /^the following hosts$/ do |string|
   hosts = StringIO.new(string)
-  @zool = Zool::ServerPool.from_hostfile hosts
+  @zool = Zool::ServerPool.from_hostfile(hosts)
 end
 
 Given /^the following keys are on the servers$/ do |table|

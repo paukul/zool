@@ -1,13 +1,19 @@
-$:.unshift(File.expand_path(File.dirname(__FILE__) + '/../../lib'))
+$:.unshift(File.expand_path(File.dirname(__FILE__) + '/../..'))
+
 require 'spec'
-require 'zool'
+require 'lib/zool'
+
 TEST_TMP_PATH = File.expand_path(File.dirname(__FILE__) + "/../tmp")
 
 class Zool::Server
-  def initialize(host, user = 'root')
+  def initialize(host, options = {})
+    @options = {
+      :password => '',
+      :user => `whoami`.chomp
+    }
     @hostname = 'localhost'
     @fake_hostname = host
-    @user = `whoami`.chomp
+    
     temp_server_path = TEST_TMP_PATH + "/servers/#{host}"
     @keyfile_location = temp_server_path + '/authorized_keys'
     FileUtils.mkdir_p temp_server_path unless File.directory? temp_server_path

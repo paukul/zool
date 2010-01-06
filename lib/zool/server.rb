@@ -7,9 +7,12 @@ module Zool
     attr_reader :hostname
     attr_accessor :keyfile_location
 
-    def initialize(hostname, user = 'root')
+    def initialize(hostname, options = {})
+      @options = {
+        :user => 'root', 
+        :password => ''
+      }.update(options)
       @hostname = hostname
-      @user = user
       @keyfile_location = default_keyfile_location
     end
 
@@ -38,7 +41,7 @@ module Zool
      begin
        backup = load_remote_file
        backup_filename = "#{@keyfile_location}_#{Time.now.to_i}"
-       Net::SCP.upload!(@hostname, @user, StringIO.new(backup), backup_filename)
+       Net::SCP.upload!(@hostname, @options[:user], StringIO.new(backup), backup_filename, :ssh => {:password => @options[:password]})
        backup_filename
      rescue Net::SCP::Error => e
        logger.fatal "Error during backup of authorized keys file: #{e.message}"
@@ -49,13 +52,13 @@ module Zool
    def upload_keys
      remote_backup_file = create_backup
      begin
-       backup_channel = Net::SSH.start(@hostname, @user, :password => '')
-       main_channel   = Net::SSH.start(@hostname, @user, :password => '')
+       backup_channel = Net::SSH.start(@hostname, @options[:user], :password => @options[:password])
+       main_channel   = Net::SSH.start(@hostname, @options[:user], :password => @options[:password])
        main_channel.scp.upload!(StringIO.new(keys.join("\n")), @keyfile_location)
        main_channel.close
        begin
          logger.info "Trying to connect to #{@hostname} to see if I still have access"
-         Net::SSH.start(@hostname, @user, :password => '')
+         Net::SSH.start(@hostname, @options[:user], :password => '')
          logger.info "Backup channel connection succeeded. Assuming everything went fine!"
        rescue Net::SSH::AuthenticationFailed => e
          if !@rolled_back
@@ -79,6 +82,10 @@ module Zool
    def to_s
     "<Zool::Server #{hostname}>"
    end
+   
+   def user
+     @options[:user]
+   end
 
     private
       def load_remote_file
@@ -86,7 +93,7 @@ module Zool
         begin
           Timeout::timeout(2) do
             logger.info "Fetching key from #{@hostname}"
-            Net::SCP.download!(@hostname, @user, @keyfile_location, downloaded_file)
+            Net::SCP.download!(@hostname, @options[:user], @keyfile_location, downloaded_file, :ssh => {:password => @options[:password]})
           end
         rescue Net::SCP::Error
           logger.warn "Warning! Empty keyfile" # logging? later... :P

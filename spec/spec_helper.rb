@@ -1,5 +1,4 @@
-$:.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
-require 'zool'
+require 'lib/zool'
 require 'spec'
 require 'fakefs'
 

@@ -3,6 +3,23 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 module Zool
   describe ServerPool do
     context "parsing from a hosts file" do
+      context "with a user argument and/or password" do
+        before :each do
+          hostsfile = <<-HOSTS
+          12.21.4.1 servername
+          HOSTS
+          @server = ServerPool.from_hostfile(hostsfile, :user => 'peter', :password => 'peters1234').servers.first
+        end
+        
+        it "should pass the user argument to the servers" do
+          @server.user.should == 'peter'
+        end
+        
+        it "should pass the password argument to the servers" do
+          @server.send(:instance_variable_get, :@options)[:password].should == 'peters1234'
+        end
+      end
+
       context "when given a String" do
         it "should return a Serverpool object with the servers from the hosts file" do
           hostsfile = StringIO.new <<-HOSTS
@@ -45,9 +62,10 @@ module Zool
 
             10.257.2.1      invalid_ip
             12.21.4.2       servername2
+            myhost.de
           HOSTS
           pool = ServerPool.from_hostfile(hostsfile)
-          pool.servers.map {|server| server.hostname }.should == ['12.21.4.1', '12.21.4.2']
+          pool.servers.map {|server| server.hostname }.should == ['12.21.4.1', '12.21.4.2', 'myhost.de']
         end
       end
     end

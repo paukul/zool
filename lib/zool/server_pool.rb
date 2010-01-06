@@ -1,8 +1,8 @@
 module Zool
   class ServerPool < Array
-    IP_FORMAT = /\A(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)(?:\.(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)){3}\z/
+    IP_FORMAT = /^(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)(?:\.(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)){3}$|^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[a-z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum)$/
 
-    def self.from_hostfile(hostsfile)
+    def self.from_hostfile(hostsfile, options = {})
       hosts = hostsfile.to_a.map { |host| host.split[0] }
       hosts.uniq!
       invalid_hosts = %w(127.0.0.1 255.255.255.255)
@@ -12,7 +12,7 @@ module Zool
 
       hosts.each do |host|
         # puts host
-        server = Server.new(host)
+        server = Server.new(host, options)
         # puts server.hostname
         pool << server
       end

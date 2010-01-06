@@ -67,6 +67,7 @@ module Zool
           
           [group qa]
             members = david
+            password : cleartext10)9292@*=-.?
           CONF
           writer = KeyfileWriter.new
           FileUtils.rm_r(writer.out_directory)
@@ -91,7 +92,8 @@ module Zool
         @conf_hash = {
           "role app" => {
             'servers' => ['preview_server', 'production_server', 'edge_server'],
-            'keys' => ['&qa']
+            'keys' => ['&qa'],
+            'password' => "123456"
           },
           "role cron servers" => {
             'servers' => ['crn1', 'crn2', 'edge_server'],
@@ -101,8 +103,14 @@ module Zool
             'members' => ['peter', 'paul']
           },
           "server 13.9.6.1" => {
-            'keys' => ['system']
+            'keys' => ['system'],
+            'password' => "123456"
+          },
+          "server 13.9.6.2" => {
+            'keys' => ['peter'],
+            'user' => "admin"
           }
+          
         }
         @configuration = Configuration.new(@conf_hash)
       end
@@ -133,6 +141,16 @@ module Zool
         edge_servers_keys.should have(4).keys
       end
       
+      context "with a configured user and/or a password" do
+        it "should use the user for servers" do
+          @configuration.servers['13.9.6.1'].send(:instance_variable_get, :@options)[:password].should == '123456'
+        end
+
+        it "should use the password for servers" do
+          @configuration.servers['13.9.6.2'].user.should == 'admin'
+        end
+      end
+
       context "calling the upload_keys method" do
         it "should upload the keys to every server in the configuration" do
           @configuration.servers.values.each do |server|

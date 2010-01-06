@@ -21,7 +21,7 @@ begin
   Jeweler::Tasks.new do |s|
     s.name = "zool"
     s.summary = "Library and command-line client to manage authorized_keys files"
-    # gemspec.description = "A different and possibly longer explanation of"
+    s.description = "Zool allows you to manage authorized_keys files on servers. It comes with a command-line client 'zool'. The configuration can be done in a pyconfig/gitosis like configuration file. See README.md for further details"
     s.email = "paukul@gmail.com"
     s.homepage = "http://github.com/paukul/zool"
     s.authors = ["Pascal Friederich"]
@@ -35,7 +35,7 @@ begin
     s.add_dependency 'net-ssh',   '>=2.0.17'
     s.add_dependency 'treetop',   '>=1.4.3'
     s.add_dependency 'polyglot',  '>=0.2.9'
-    
+    s.add_dependency 'highline',  '>=1.5.1'
     s.add_development_dependency 'builder',          '>=2.1.2'
     s.add_development_dependency 'columnize',        '>=0.3.1'
     s.add_development_dependency 'cucumber',         '>=0.5.3'

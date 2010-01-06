@@ -3,7 +3,8 @@ gem 'net-scp',          '1.0.2'
 gem 'net-ssh',          '2.0.17'
 gem 'treetop',          '1.4.3'
 gem 'polyglot',         '0.2.9'
-                         
+gem 'highline',         '1.5.1'
+
 gem 'builder',          '2.1.2'
 gem 'columnize',        '0.3.1'
 gem 'cucumber',         '0.5.3'

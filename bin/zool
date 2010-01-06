@@ -1,17 +1,21 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'zool'
+require 'lib/zool'
 require 'optparse'
+require 'highline'
 
 class ZoolClient
   VALID_COMMANDS = %w(fetch setup fake apply)
   
   def initialize
+    @hl = HighLine.new
     @options = {
       :keys_dir => 'keys',
       :hosts_file => '/etc/hosts',
       :hosts => [],
-      :config => 'zool.conf'
+      :config => 'zool.conf',
+      :user => 'root',
+      :prompt_for_password => false
     }
 
     parse_opts
@@ -40,11 +44,15 @@ class ZoolClient
     $stdout.print "Uploading..."
     begin
       configuration.upload_keys
+    rescue Net::SSH::AuthenticationFailed => e
+      $stdout.puts "   [FAIL]"
+      $stdout.puts "Error connecting to a server with the user '#{e.message}'"
+      exit 1
     rescue Zool::Server::ConnectionVerificationExecption => e
       $stdout.puts "   [FAIL]"
       $stdout.puts "Could not connect to a Server after updating the authorized_keys file. Tried to roll back!"
       $stdout.puts e.message
-      exit
+      exit 1
     end
     $stdout.puts "   [DONE]"
     $stdout.puts "Go check if everything is fine!"
@@ -58,7 +66,7 @@ class ZoolClient
     end
     
     pool = read_hostsfile
-    $stdout.print "Fetching keys from servers abd writing config to zool.conf..."
+    $stdout.print "Fetching keys from servers and writing config to zool.conf..."
     config = Zool::Configuration.build(pool)
     File.open('zool.conf', 'w+') do |file|
       file.puts config
@@ -85,17 +93,26 @@ class ZoolClient
         o.separator("Valid commands: #{VALID_COMMANDS.join(', ')}")
         o.separator("")
         o.separator("Input Options:")
+
         o.on("--hosts host1,host2,host3", Array, "A comma separated list of hostnames to use (when using fetch or setup)") do |hosts|
           @options[:hosts] = hosts
         end
-        
+
         o.on("--hostfile FILENAME", String, "The file to take the hosts from. Defaults to /etc/hosts (is ignored if the --hosts option is provided)") do |hostefile|
           @options[:hosts_file] = hostefile
         end
 
+        o.on("-u USER", "--user USER", String, "The username to use to connect to the servers (defaults to root)") do |user|
+          @options[:user] = user
+        end
+
+        o.on("-p", "Prompt for the users password") do |p|
+          @options[:prompt_for_password] = p
+        end
+
         o.on("-h", "--help", "This help screen" ) do
           puts o
-          exit
+          abort
         end
       end
       
@@ -116,8 +133,15 @@ class ZoolClient
         hostfile << "    dummyname\n"
       end
       
+      password = if @options[:prompt_for_password]
+        @hl.ask("Enter your password:  ") { |q| q.echo = false }
+      else
+        ''
+      end
+
       $stdout.print "Reading hosts from #{hosts_source}..."
-      pool = Zool::ServerPool.from_hostfile(hostfile)
+
+      pool = Zool::ServerPool.from_hostfile(hostfile, :user => @options[:user], :password => password)
       $stdout.puts "  [DONE]"
       exit_with_help("no Valid servers found") if pool.servers == []
       pool

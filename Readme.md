@@ -1,18 +1,7 @@
 Zool
 =================
-zool is a library to manage authorized_keys files on a set of n servers.
+zool (which is named after Zuul, "The Gatekeeper", from the movie [Ghostbusters](http://en.wikipedia.org/wiki/Ghostbusters)) is a gem to manage authorized_keys files on a set of n servers.
 It comes with a command-line client named zool which gives you access to the common tasks.
-
-Current State
--------------
-
-At the current state of development, you need bundler to run the zool client.
-The library will get released as a gem somewhere, somewhen, but until then follow the instructions to get it running:
-
-* `sudo gem install bundler` (if not done already)
-* `gem bundle`
-
-that should be it... You should then be able to use the `zool` client in `bin/zool`
 
 The command-line client
 -----------------------
@@ -22,8 +11,10 @@ the command-line client currently supports 3 commands:
 * fetch<br>
   fetches the authorized_keys files from a file (defaults to /etc/hosts) or a list of hosts (see zool -h for more info), splits them up, removes duplicates and saves them to a .pub file in the keys (will be configurable... later...) directory.
   It tries to generate the name of the keyfile by parsing the key for a someuser@somehost value at the end of the key. It only uses the someuser value to generate the keyfile name. That may become configurable later
+  You can specify a user / password for the fetch and setup tasks. See zool -h for details.
 * setup<br>
   this task creates the keys directory, fetches the keys and naively creates a simple version of a zool.conf. That will experience some overhaul for sure because it is only capable to create server directives for every server and isn't smart enough to group keys.
+  You can specify a user / password for the fetch and setup tasks. See zool -h for details.
 * apply<br>
   reads the zool.conf and distributes the keys to the servers specified in the configuration file. <br>
 
@@ -41,13 +32,19 @@ The zool.conf describes which keys should be deployed to which servers. It suppo
     [role app]
       servers = 10.12.11.1, 10.12.11.2
       keys = &devs, tony
-    
+      user : my_deploy_user
+      password : mypassword
+
     [server 10.11.1.4]
       keys = &sysadmins
+      user = adminuser
 
 The members are specified as the name of the keyfile containing the key, without the succeeding .pub extension.
 A _group_ groups several keys, a _role_ groups several _servers_. A server, well, is a single server. (*Note*: you can have servers in several groups and even in an additional server directive at once)
 Roles and servers can have multiple _keys_. The keys can be supplied like in the _group_ directive or if you want to reference to a groups keys, by prepending a _&_ (if you would want to reference the group _devs_ you would use _&devs_).
+You can specify the user/password to use to connect to servers / roles.
+
+*NOTE* Currently the first appearance of a server in the key file sets its user/password. So it is not possible to have multiple key configurations with a different user for a single server. That might change soon!
 
 Security?
 ----------
@@ -82,10 +79,11 @@ __Bugs / Issues__
 __Feature Todos__
 
 * generating the config from a serverpool / hostfile is pretty dump at the moment. is doesn't use the groups and roles directives, instead stupidly adds server directives with the appropriate keys. That could be made smarter...
-* allow customizing the user for server/role directives
 * if keys are in subfolders, the subfolders could automatically act as usable groups, with the folder name as reference
 
+__DONE__
 
+* allow customizing the user for server/role directives
 
 Running the tests
 =================
