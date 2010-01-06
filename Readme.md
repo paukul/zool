@@ -10,7 +10,7 @@ Installation
 * install [rubygems](http://docs.rubygems.org/read/chapter/3)
 * gem install [zool](http://github.com/paukul/zool)
 
-that should be it!
+You also need a zool.conf file and a keys directory (where the public keys are stored) to use the command-line client.
 
 The command-line client
 -----------------------
