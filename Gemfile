@@ -1,4 +1,3 @@
-gem 'net-sftp',         '2.0.4'
 gem 'net-scp',          '1.0.2'
 gem 'net-ssh',          '2.0.17'
 gem 'treetop',          '1.4.3'
