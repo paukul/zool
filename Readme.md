@@ -97,7 +97,10 @@ Developing
 Bundler
 -------
 
-To get a working development/testing setup you can use bundler to fetch all the dependencies. Just `gem install bundler` and `gem bundle` in the checkout directory afterwards. Be sure to use the executables (rake, cucumber, ...) from the bundler_bin directory instead your regular versions.
+To get a working development/testing setup you can use bundler to
+fetch all the dependencies. Just `gem install bundler` and `bundle
+install` in the checkout directory afterwards. Be sure to use the
+bundle exec command to invoke stuff like rake / cucumber (`bundle exec rake`).
 
 Running the tests
 -----------------

@@ -1,9 +1,4 @@
 $:.unshift File.dirname(__FILE__)
-begin
-  require File.expand_path(File.dirname(__FILE__) + '/../vendor/gems/environment')
-rescue LoadError
-  # seems to be the gem version
-end
 
 require 'treetop'
 require 'py_config_parser/py_config_parser'
