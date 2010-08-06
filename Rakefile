@@ -5,11 +5,7 @@ Cucumber::Rake::Task.new do |t|
   t.cucumber_opts = "--format progress"
 end
 
-task :default do
-  %w(spec cucumber).each do |task|
-    Rake::Task[task].invoke
-  end
-end
+task :default => :test
 
 desc "Run all specs"
 Spec::Rake::SpecTask.new('spec') do |t|
@@ -25,7 +21,7 @@ begin
     s.email = "paukul@gmail.com"
     s.homepage = "http://github.com/paukul/zool"
     s.authors = ["Pascal Friederich"]
-    s.version = ["0.1.3"]
+    s.version = ["0.1.4"]
     s.files.exclude 'vendor', 'spec', 'features', '.gitignore', 'Gemfile'
     s.test_files.include 'features/**/*'
     s.test_files.exclude 'features/tmp'

@@ -1,4 +1,4 @@
-source 'http://gemcutter.org'
+source :rubygems
 
 gem 'net-scp',          '1.0.2'
 gem 'net-ssh',          '2.0.17'
@@ -21,4 +21,4 @@ group :development do
   gem 'term-ansicolor',   '1.0.4'
 end
 
-gem "jeweler", :library => nil
+gem "jeweler", :require => false

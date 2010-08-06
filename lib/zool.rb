@@ -1,5 +1,6 @@
 $:.unshift File.dirname(__FILE__)
 
+require 'rubygems'
 require 'treetop'
 require 'py_config_parser/py_config_parser'
 require 'zool/server'

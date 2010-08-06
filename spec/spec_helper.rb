@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'lib/zool'
 require 'spec'
 require 'fakefs'
